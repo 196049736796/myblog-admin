@@ -6,13 +6,11 @@ import cn.myxinge.entity.BoardMsg;
 import cn.myxinge.entity.VisitIp;
 import cn.myxinge.service.VisitIpService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 /**
  * Created by chenxinghua on 2017/11/23.
@@ -24,6 +22,16 @@ public class VisitIpServiceImpl implements VisitIpService {
     private VisitIpDao visitIpDao;
     @Override
     public void save(VisitIp visitIp) {
+
+        //查询
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withMatcher("ip", ExampleMatcher.GenericPropertyMatchers.caseSensitive());
+        List<VisitIp> all = visitIpDao.findAll(Example.of(visitIp, matcher));
+        if(all.size() == 1){
+            VisitIp visitIp1 = all.get(0);
+            visitIp1.setVisittime(visitIp.getVisittime());
+            visitIpDao.save(visitIp1);
+        }
         visitIpDao.save(visitIp);
     }
 
