@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>留言管理</title>
+    <link rel="stylesheet" type="text/css" href="ui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="ui/themes/icon.css">
+    <script type="text/javascript" src="ui/jquery.min.js"></script>
+    <script type="text/javascript" src="ui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="ui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="ui/jquery.serializejson.min.js"></script>
+    <script type="text/javascript" src="js/crud.js"></script>
+    <script type="text/javascript" src="js/date.js"></script>
+    <style type="text/css">
+        a {
+            margin-left: 5px;
+        }
+    </style>
+    <script type="text/javascript">
+        var name = "boardMsg";
+        var columns = [[
+            {field: 'id', title: '编号', width: 100},
+            {field: 'name', title: '昵称', width: 120},
+            {field: 'email', title: '邮箱', width: 160},
+            {field: 'msg', title: '留言', width: 250},
+            {
+                field: 'createtime', title: '留言时间', width: 150,
+                formatter: function (value, row, index) {
+                    if (value) {
+                        return new Date(value).Format("yyyy-MM-dd hh:mm:ss");
+                    }
+                }
+            },
+
+            {
+                field: '-', title: '操作', width: 100,
+                formatter: function (value, row, index) {
+                    var oper = '<a href="javascript:void(0)" style="color:red" onclick="del(' + row.id + ')">删除</a>';
+                    return oper;
+                }
+            }
+        ]];
+
+    </script>
+</head>
+<body>
+<!--条件查询表单-->
+<div class="easyui-panel" style="padding-left:4px;border-bottom:0px;">
+    <div style="height:2px;"></div>
+    <form id="searchForm">
+        昵称：<input name="name">
+        邮箱：<input name="email">
+        留言时间：<input name="state">
+        <button type="button" id="btnSearch">查询</button>
+        <button type="button" id="btnReset">清除</button>
+    </form>
+    <div style="height:2px;"></div>
+</div>
+<table id="grid"></table>
+
+</body>
+</html>

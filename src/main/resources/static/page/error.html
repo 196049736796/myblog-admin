@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Page couldn't be found.</title>
+		<link rel="stylesheet" media="screen" href="css/styleerr.css">
+		
+		<script language="JavaScript">
+			function dosearch() {
+			var sf=document.searchform;
+			var submitto = sf.sengine.value + escape(sf.searchterms.value);
+			window.location.href = submitto;
+			return false;
+			}
+		</script>
+	</head>
+	<body>
+		
+		<div class="header">
+			<img src="/images/Logo_sample.png" />
+		</div>
+		
+		<p class="error">404</p>
+		
+		<div class="content">
+			<h2>page coulnd't be found</h2>
+			
+			<p class="text">
+				噢...出错啦，返回主页瞧瞧吧。
+			
+				<form name="searchform" onSubmit="return dosearch();">
+					<input type="hidden" name="sengine" value="http://www.google.com/search?q=site:\www/myxinge.cn+" />
+					<input type="text" name="searchterms" class="inputform">
+					<input type="submit" name="SearchSubmit" value="Search" class="button"> 
+				</form>
+			</p>
+				
+			<p class="links">
+				<a href="/page/index.html">返回主页</a>
+			</p>
+		</div>
+		
+	</body>
+</html>
