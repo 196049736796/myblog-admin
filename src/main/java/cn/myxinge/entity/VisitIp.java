@@ -18,6 +18,7 @@ public class VisitIp {
     private String ip;
     private String address;
     private Date visittime;
+    private Long visitNum;
 
     public Integer getId() {
         return id;
@@ -49,5 +50,13 @@ public class VisitIp {
 
     public void setVisittime(Date visittime) {
         this.visittime = visittime;
+    }
+
+    public Long getVisitNum() {
+        return visitNum;
+    }
+
+    public void setVisitNum(Long visitNum) {
+        this.visitNum = visitNum;
     }
 }

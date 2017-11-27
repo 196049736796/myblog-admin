@@ -26,12 +26,20 @@ public class VisitIpServiceImpl implements VisitIpService {
         //查询
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withMatcher("ip", ExampleMatcher.GenericPropertyMatchers.caseSensitive());
-        List<VisitIp> all = visitIpDao.findAll(Example.of(visitIp, matcher));
+        VisitIp example = new VisitIp();
+        example.setIp(visitIp.getIp());
+
+        List<VisitIp> all = visitIpDao.findAll(Example.of(example, matcher));
         if(all.size() == 1){
             VisitIp visitIp1 = all.get(0);
+            Long visitNum = visitIp1.getVisitNum();
+            if(null == visitNum){visitNum = 0L;}
+            visitIp1.setVisitNum(visitNum+ 1);
             visitIp1.setVisittime(visitIp.getVisittime());
             visitIpDao.save(visitIp1);
+            return;
         }
+        visitIp.setVisitNum(1L);
         visitIpDao.save(visitIp);
     }
 

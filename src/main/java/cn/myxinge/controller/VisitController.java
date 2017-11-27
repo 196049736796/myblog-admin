@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,8 +31,7 @@ public class VisitController {
     private VisitIpService visitIpService;
 
     @RequestMapping(value = "/save",method = {RequestMethod.POST})
-    public JSONObject save(VisitIp visitIp){
-
+    public JSONObject save(VisitIp visitIp) throws ParseException {
         visitIpService.save(visitIp);
         return ResponseUtil.returnJson(true,"success");
     }
