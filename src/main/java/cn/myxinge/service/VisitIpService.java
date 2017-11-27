@@ -18,4 +18,9 @@ public interface VisitIpService {
     Long getCount(VisitIp o);
 
     void delete(Integer id);
+
+    VisitIp findByIP(VisitIp visitIps);
+
+    void update(VisitIp visitIp1);
+
 }

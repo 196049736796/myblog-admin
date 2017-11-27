@@ -2,7 +2,6 @@ package cn.myxinge.service.impl;
 
 import cn.myxinge.dao.VisitIpDao;
 import cn.myxinge.entity.Blog;
-import cn.myxinge.entity.BoardMsg;
 import cn.myxinge.entity.VisitIp;
 import cn.myxinge.service.VisitIpService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,5 +57,21 @@ public class VisitIpServiceImpl implements VisitIpService {
     @Override
     public void delete(Integer id) {
         visitIpDao.delete(id);
+    }
+
+    @Override
+    public VisitIp findByIP(VisitIp visitIp) {
+        ExampleMatcher ma = ExampleMatcher.matching().withMatcher("ip",
+                ExampleMatcher.GenericPropertyMatchers.caseSensitive())
+                .withIgnorePaths("focus");
+        Example<VisitIp> ex = Example.of(visitIp, ma);
+
+        List<VisitIp> all = visitIpDao.findAll(ex);
+        return all.size() > 0 ? all.get(0) : null;
+    }
+
+    @Override
+    public void update(VisitIp visitIp1) {
+        visitIpDao.save(visitIp1);
     }
 }
