@@ -104,7 +104,7 @@ public class BlogController{
 
 
     //跟据id删除 -- 带资源
-    @RequestMapping(value = "/delete",method = {RequestMethod.DELETE})
+    @RequestMapping(value = "/delete",method = {RequestMethod.POST})
     public JSONObject delete(Integer id) throws Exception {
         if (null == id) {
             return ResponseUtil.returnJson(false, "ID为空");
@@ -154,7 +154,7 @@ public class BlogController{
         return ResponseUtil.returnJson(false, "失败,博客不存在");
     }
 
-    @RequestMapping(value = "/update",method = {RequestMethod.PUT})
+    @RequestMapping(value = "/update",method = {RequestMethod.POST})
     public JSONObject update(Blog blog, MultipartFile html) throws Exception {
         if (null == blog || null == blog.getId()) {
             return ResponseUtil.returnJson(false, "失败,博客不存在");

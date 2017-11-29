@@ -131,19 +131,6 @@ public class BlogServiceImpl implements BlogService {
             while ((str = br.readLine()) != null) {
                 sb.append(str);
             }
-            //读取配置文件，更新html文件
-            Properties pro = new Properties();
-            pro.load(new FileInputStream(rootPath + "static/conf/html.properties"));
-            String html1 = pro.getProperty("html");
-
-            //找到</body>节点
-            String html_str = sb.toString();
-            int i = html_str.indexOf("</body>");
-            String start = html_str.substring(0, i);
-            String end = html_str.substring(i);
-
-            //结果
-            String result = start.concat(html1).concat(end);
 
             filePath = rootPath + "static/temp/";
             File temp = new File(filePath);
@@ -152,9 +139,8 @@ public class BlogServiceImpl implements BlogService {
             }
             //写出
             Writer writer = new FileWriter(filePath + html.getOriginalFilename());
-            writer.write(result);
+            writer.write(sb.toString());
             writer.close();
-
 
             //上传
             FastDFSClient fastDFSClient = null;

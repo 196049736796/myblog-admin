@@ -172,7 +172,7 @@ function del(id) {
             $.ajax({
                 url: "/admin/" + name + '/delete?id=' + id,
                 dataType: 'json',
-                type: 'delete',
+                type: 'post',
                 success: function (rtn) {
                     $.messager.alert("提示", rtn.message, 'info', function () {
                         //刷新表格数据
@@ -197,8 +197,7 @@ function edit(id) {
     //设置保存按钮提交的方法为update
     method = "update";
 
-    ty = "put";
-
+    ty = "post";
 
     //加载数据
     $('#editForm').form('load', '/admin/' + name + '/findById/' + id);
