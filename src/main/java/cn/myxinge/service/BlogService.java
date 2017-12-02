@@ -10,12 +10,6 @@ import java.util.List;
  * Created by chenxinghua on 2017/11/9.
  */
 public interface BlogService {
-    /**
-     * 创建博客
-     *
-     * @param blog
-     */
-    void create(Blog blog);
 
     /**
      * 根据主键获取博客
@@ -59,7 +53,7 @@ public interface BlogService {
      * @param html
      * @param blog
      */
-    int addBlog(MultipartFile html, Blog blog);
+    int addBlog(Blog blog);
 
     /**
      * 主键查询

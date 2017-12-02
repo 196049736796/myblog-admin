@@ -1,11 +1,15 @@
 package cn.myxinge.service;
 
+import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Created by chenxinghua on 2017/11/20.
  */
 public interface ResourceService {
+
+    String upload(MultipartFile reso, Blog blog);
 
     /**
      * 上传
@@ -30,4 +34,6 @@ public interface ResourceService {
      * @return
      */
     String deleteHtml(Resource resource) throws Exception;
+
+    public void save(Resource resource);
 }

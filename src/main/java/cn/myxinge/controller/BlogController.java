@@ -5,6 +5,7 @@ import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.BlogService;
 import cn.myxinge.service.ResourceService;
+import cn.myxinge.utils.FileUtil;
 import cn.myxinge.utils.ResponseUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -29,7 +30,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/admin/blog")
-public class BlogController{
+public class BlogController {
     private static final Logger LOG = LoggerFactory.getLogger(BlogController.class);
     @Autowired
     private BlogService blogService;
@@ -43,7 +44,7 @@ public class BlogController{
      * @param model
      * @return
      */
-    @RequestMapping(value = "/{url}",method = {RequestMethod.GET})
+    @RequestMapping(value = "/{url}", method = {RequestMethod.GET})
     public Blog showBlog(@PathVariable String url, Model model) {
         Blog blog = blogService.getBlog(url);
         return blog;
@@ -55,7 +56,7 @@ public class BlogController{
      * @param model
      * @return
      */
-    @RequestMapping(value = "/newerBlog",method = {RequestMethod.GET})
+    @RequestMapping(value = "/newerBlog", method = {RequestMethod.GET})
     public List<Blog> newerBlog(Model model) {
         Page<Blog> newerBlog = blogService.newerBlog(6);
         return newerBlog.getContent();
@@ -65,19 +66,35 @@ public class BlogController{
      * 添加博客
      * html页面 ， blog 博客对象 ，用来存储到数据库
      */
-    @RequestMapping(value = "/add",method = {RequestMethod.POST})
-    public JSONObject addBlog(MultipartFile html, Blog blog) {
+    @RequestMapping(value = "/add", method = {RequestMethod.POST})
+    public JSONObject addBlog(MultipartFile html, MultipartFile mainImg, Blog blog) {
 
-        if (html == null || StringUtils.isEmpty(html.getOriginalFilename())) {
-            return ResponseUtil.returnJson(true, "博客页面为空");
+        if (html == null || StringUtils.isEmpty(html.getOriginalFilename()) ||
+                !html.getOriginalFilename().endsWith(".html")) {
+            return ResponseUtil.returnJson(true, "博客页面为空或文件格式有误");
         }
 
-        blogService.addBlog(html, blog);
+        if (mainImg == null || StringUtils.isEmpty(mainImg.getOriginalFilename()) ||
+                !FileUtil.isPicture(mainImg.getOriginalFilename())) {
+            return ResponseUtil.returnJson(true, "需要一个大图");
+        }
 
+        blogService.addBlog(blog);
+        String htmlUrl = resourceService.upload(html, blog);
+        if ("-1".equals(htmlUrl)) {
+            return ResponseUtil.returnJson(false, "HTML上传失败");
+        }
+        String imgUrl = resourceService.upload(mainImg, blog);
+        if ("-1".equals(imgUrl)) {
+            return ResponseUtil.returnJson(false, "图片上传失败");
+        }
+        blog.setSysyUrl(htmlUrl);
+        blog.setMainImgUrl(imgUrl);
+        blogService.save(blog);
         return ResponseUtil.returnJson(true, "成功");
     }
 
-    @RequestMapping(value = "/list",method = {RequestMethod.GET})
+    @RequestMapping(value = "/list", method = {RequestMethod.GET})
     public Map list(Integer page, Integer rows) {
 
         Page<Blog> data = blogService.list(null, null, page, rows);
@@ -90,7 +107,7 @@ public class BlogController{
         return mapData;
     }
 
-    @RequestMapping(value = "/listWithoutState",method = {RequestMethod.GET,RequestMethod.POST})
+    @RequestMapping(value = "/listWithoutState", method = {RequestMethod.GET, RequestMethod.POST})
     public Map listWithoutState(Integer page, Integer rows) {
 
         Page<Blog> data = blogService.listWithoutState(null, null, page, rows);
@@ -104,7 +121,7 @@ public class BlogController{
 
 
     //跟据id删除 -- 带资源
-    @RequestMapping(value = "/delete",method = {RequestMethod.POST})
+    @RequestMapping(value = "/delete", method = {RequestMethod.POST})
     public JSONObject delete(Integer id) throws Exception {
         if (null == id) {
             return ResponseUtil.returnJson(false, "ID为空");
@@ -124,7 +141,7 @@ public class BlogController{
         return ResponseUtil.returnJson(false, result);
     }
 
-    @RequestMapping(value = "/findById/{id}",method = {RequestMethod.GET})
+    @RequestMapping(value = "/findById/{id}", method = {RequestMethod.GET})
     public Blog findById(@PathVariable Integer id) {
         if (null == id) {
             return null;
@@ -133,7 +150,7 @@ public class BlogController{
         return blogService.getBlogById(id);
     }
 
-    @RequestMapping(value = "/changState/{id}",method = {RequestMethod.PUT})
+    @RequestMapping(value = "/changState/{id}", method = {RequestMethod.PUT})
     public JSONObject changState(@PathVariable Integer id) {
         if (null != id) {
             Blog blogById = blogService.getBlogById(id);
@@ -154,7 +171,7 @@ public class BlogController{
         return ResponseUtil.returnJson(false, "失败,博客不存在");
     }
 
-    @RequestMapping(value = "/update",method = {RequestMethod.POST})
+    @RequestMapping(value = "/update", method = {RequestMethod.POST})
     public JSONObject update(Blog blog, MultipartFile html) throws Exception {
         if (null == blog || null == blog.getId()) {
             return ResponseUtil.returnJson(false, "失败,博客不存在");
@@ -174,7 +191,7 @@ public class BlogController{
 
         } else {
 
-            if(!html.getOriginalFilename().endsWith(".html")){
+            if (!html.getOriginalFilename().endsWith(".html")) {
                 return ResponseUtil.returnJson(false, "文件不是html");
             }
 
@@ -182,9 +199,14 @@ public class BlogController{
             blog.setUpdatetime(new Date());
             blog.setUrl(blogById.getUrl());
             //添加
-            int i = blogService.addBlog(html, blog);
+            String htmlUrl = resourceService.upload(html, blog);
+            if ("-1".equals(htmlUrl)) {
+                return ResponseUtil.returnJson(false, "文件上传失败");
+            }
+            blog.setSysyUrl(htmlUrl);
+            int i = blogService.addBlog(blog);
 
-            if(0 != i){
+            if (0 != i) {
                 return ResponseUtil.returnJson(false, "修改保存失败");
             }
 

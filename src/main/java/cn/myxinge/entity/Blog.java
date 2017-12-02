@@ -25,6 +25,8 @@ public class Blog {
     private String url;
     @Column(name = "sysyUrl")
     private String sysyUrl;
+    @Column(name = "mainimg_url")
+    private String mainImgUrl;
     private Date createtime;
     private Date updatetime;
     //1.上线 2.下线
@@ -104,4 +106,11 @@ public class Blog {
         this.sysyUrl = sysyUrl;
     }
 
+    public String getMainImgUrl() {
+        return mainImgUrl;
+    }
+
+    public void setMainImgUrl(String mainImgUrl) {
+        this.mainImgUrl = mainImgUrl;
+    }
 }

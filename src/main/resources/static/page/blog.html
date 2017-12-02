@@ -20,12 +20,13 @@
         var name = "blog";
         var columns = [[
             {field: 'id', title: '编号', width: 60},
-            {field: 'title', title: '标题', width: 130},
-            {field: 'subject', title: '主题', width: 140},
+            {field: 'title', title: '标题', width: 100},
+            {field: 'subject', title: '主题', width: 100},
             {field: 'url', title: '地址', width: 100},
-            {field: 'sysyUrl', title: '资源地址', width: 100},
+            {field: 'sysyUrl', title: '页面地址', width: 100},
+            {field: 'mainImgUrl', title: '主图地址', width: 100},
             {
-                field: 'createtime', title: '创建时间', width: 130,
+                field: 'createtime', title: '创建时间', width: 120,
                 formatter: function (value, row, index) {
                     if (value) {
                         return new Date(value).Format("yyyy-MM-dd hh:mm:ss");
@@ -57,9 +58,10 @@
             {field: 'auth', title: '作者', width: 100},
 
             {
-                field: '-', title: '操作', width: 160,
+                field: '-', title: '操作', width: 200,
                 formatter: function (value, row, index) {
-                    var oper = "<a href=\"http://www.myxinge.cn/blog/" + row.url + "\" target='_blank'>预览</a>";
+                    var oper = "<a href=\"javascript:void(0)\" onclick=\"uploadRe("+row.id+")\" target=\"_blank\">资源上传</a>";
+                    oper += "<a href=\"http://www.myxinge.cn/blog/" + row.url + "\" target='_blank'>预览</a>";
                     if (row.state == 0) {
                         oper += ' <a href="javascript:void(0)" onclick="up(' + row.id + ')">上线</a>';
                     }
@@ -79,7 +81,7 @@
         //up
         function up(id) {
             $.ajax({
-                url: "/admin/blog/changState/"+id,
+                url: "/admin/blog/changState/" + id,
                 dataType: "json",
                 type: "put",
                 success: function (rtn) {
@@ -154,7 +156,21 @@
                 <td>Html文件</td>
                 <td><input style="width: 100%" type="file" name="html"></td>
             </tr>
+            <tr>
+                <td>大图文件</td>
+                <td><input style="width: 100%" type="file" name="mainImg"></td>
+            </tr>
         </table>
+    </form>
+</div>
+
+<div id="uploadReDiv">
+    <form id="uploadReForm" enctype="multipart/form-data">
+        <input type="hidden" name="blogId" id="ReblogId"/>
+        <tr>
+            <td>资源文件：<input style="width: 100%" type="file" name="resource"></td>
+            <td>页面URL：<input style="width: 100%" type="text" name="url"></td>
+        </tr>
     </form>
 </div>
 </body>

@@ -1,6 +1,5 @@
 package cn.myxinge.service.impl;
 
-import cn.myxinge.common.WriteMyLog;
 import cn.myxinge.dao.BlogDao;
 import cn.myxinge.dao.ResourceDao;
 import cn.myxinge.entity.Blog;
@@ -12,13 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.*;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Created by chenxinghua on 2017/11/9.
@@ -31,11 +30,6 @@ public class BlogServiceImpl implements BlogService {
     private BlogDao blogDao;
     @Autowired
     private ResourceDao resourceDao;
-
-    @Override
-    public void create(Blog blog) {
-        blogDao.save(blog);
-    }
 
     @Override
     public Blog getBlog(String url) {
@@ -69,7 +63,7 @@ public class BlogServiceImpl implements BlogService {
         Example<Blog> ex = Example.of(blog, ma);
 
         Pageable pageable = new PageRequest(0, n, sort);
-        return blogDao.findAll(ex,pageable);
+        return blogDao.findAll(ex, pageable);
     }
 
     @Override
@@ -82,12 +76,13 @@ public class BlogServiceImpl implements BlogService {
         Blog blog = new Blog();
         blog.setState(Blog.STATE_ONLINE);
         Example<Blog> ex = Example.of(blog, ma);
-        Pageable pageable = new PageRequest(firstResult, rows,sort);
-        return blogDao.findAll(ex,pageable);
+        Pageable pageable = new PageRequest(firstResult, rows, sort);
+        return blogDao.findAll(ex, pageable);
     }
 
     /**
      * 返回所有 不考虑状态
+     *
      * @param add
      * @param update
      * @param page
@@ -98,7 +93,7 @@ public class BlogServiceImpl implements BlogService {
     public Page listWithoutState(Blog add, Blog update, Integer page, Integer rows) {
         Sort sort = new Sort(Sort.Direction.DESC, "createtime");
         int firstResult = (page - 1) * rows;
-        Pageable pageable = new PageRequest(firstResult, rows,sort);
+        Pageable pageable = new PageRequest(firstResult, rows, sort);
         return blogDao.findAll(pageable);
     }
 
@@ -109,97 +104,26 @@ public class BlogServiceImpl implements BlogService {
     }
 
     /**
-     * 博客页面上传存储
+     * 博客上传存储(包括大图)
+     *
      * @param html
      * @param blog
      */
     @Override
-    public int addBlog(MultipartFile html, Blog blog) {
-        InputStream is = null;
-        InputStreamReader isr = null;
-        BufferedReader br = null;
-        String rootPath = this.getClass().getResource("/").getPath();
-        String filePath = null;
-
-        // 上传文件
-        try {
-            is = html.getInputStream();
-            isr = new InputStreamReader(is);// 字符流
-            br = new BufferedReader(isr);// 缓冲流
-            String str = null;
-            StringBuffer sb = new StringBuffer();
-            while ((str = br.readLine()) != null) {
-                sb.append(str);
-            }
-
-            filePath = rootPath + "static/temp/";
-            File temp = new File(filePath);
-            if (!temp.exists()) {
-                temp.mkdirs();
-            }
-            //写出
-            Writer writer = new FileWriter(filePath + html.getOriginalFilename());
-            writer.write(sb.toString());
-            writer.close();
-
-            //上传
-            FastDFSClient fastDFSClient = null;
-            fastDFSClient = new FastDFSClient(rootPath + "static/conf/client.conf");
-            int dian = html.getOriginalFilename().indexOf(".");
-            String sysyUrl = fastDFSClient.uploadFile(filePath + html.getOriginalFilename(),
-                    html.getOriginalFilename().substring(dian + 1));
-
-            //存储数据库
-            blog.setAuth("Xingchen");
-            if(null == blog.getCreatetime()){
-                blog.setCreatetime(new Date());
-                blog.setUpdatetime(null);
-            }
-            blog.setState(Blog.STATE_OFFLINE);
-            blog.setSysyUrl(sysyUrl);
-            blogDao.save(blog);
-
-            //存储资源表
-            Resource resource = new Resource();
-            resource.setDescription("页面Html");
-            resource.setSuffix("html");
-            resource.setSysyUrl(sysyUrl);
-            resource.setBlogid(blog.getId());
-            resourceDao.save(resource);
-
-        } catch (Exception e) {
-            LOG.error("博客上传异常：" + e.getCause());
-            return -1;
-        } finally {
-
-            try {
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                isr.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                is.close();
-            } catch (IOException e) {
-                LOG.error("博客上传异常：" + e.getCause());
-            }
-
-            //删除临时文件
-            File file = new File(filePath + html.getOriginalFilename());
-            if (file != null) {
-                file.delete();
-            }
+    public int addBlog(Blog blog) {
+        blog.setAuth(StringUtils.isEmpty(blog.getAuth()) ? "Xingchen" : blog.getAuth());
+        if (null == blog.getCreatetime()) {
+            blog.setCreatetime(new Date());
+            blog.setUpdatetime(null);
         }
-
+        blog.setState(Blog.STATE_OFFLINE);
+        blogDao.save(blog);
         return 0;
     }
 
     /**
      * 通过ID查询博客
+     *
      * @param id
      * @return
      */

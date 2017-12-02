@@ -146,6 +146,47 @@ $(function () {
         }]
     });
 
+    //初始化资源上传接口
+    $('#uploadReDiv').dialog({
+        title: '资源上传',//窗口标题
+        width: 480,//窗口宽度
+        height: 450,
+        closed: true,//窗口是是否为关闭状态, true：表示关闭
+        modal: true,//模式窗口
+        buttons: [{
+            text: '保存',
+            iconCls: 'icon-save',
+            handler: function () {
+                var formData = new FormData($("#uploadReForm")[0]);
+                $.ajax({
+                    url: '/admin/resouce/uploadRe',
+                    data: formData,
+                    type: "post",
+                    async: false,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (rtn) {
+                        //{success:true, message: 操作失败}
+                        $.messager.alert('提示', rtn.message, 'info', function () {
+                            //关闭弹出的窗口
+                            $('#uploadReDiv').dialog('close');
+                            //刷新表格
+                            $('#grid').datagrid('reload');
+                        });
+                    }
+                });
+            }
+        }, {
+            text: '关闭',
+            iconCls: 'icon-cancel',
+            handler: function () {
+                //关闭弹出的窗口
+                $('#editDlg').dialog('close');
+            }
+        }]
+    });
+
 });
 
 //检查是否登录
@@ -201,5 +242,11 @@ function edit(id) {
 
     //加载数据
     $('#editForm').form('load', '/admin/' + name + '/findById/' + id);
+}
+
+//上传资源
+function uploadRe(blogId) {
+    $("#ReblogId").val(blogId);
+    $('#uploadReDiv').dialog("open");
 }
 
