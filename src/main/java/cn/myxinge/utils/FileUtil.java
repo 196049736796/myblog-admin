@@ -10,9 +10,9 @@ import java.time.temporal.Temporal;
  */
 public class FileUtil {
     //判断是否是图片
-    public static boolean isPicture(String  pInput){
+    public static boolean isPicture(String pInput) {
         // 文件名称为空的场合
-        if(StringUtils.isEmpty(pInput)){
+        if (StringUtils.isEmpty(pInput)) {
             // 返回不和合法
             return false;
         }
@@ -20,18 +20,15 @@ public class FileUtil {
         String tmpName = pInput.substring(pInput.lastIndexOf(".") + 1,
                 pInput.length());
         // 声明图片后缀名数组
-        String imgeArray [][] = {
-                {"bmp", "0"}, {"dib", "1"}, {"gif", "2"},
-                {"jfif", "3"}, {"jpe", "4"}, {"jpeg", "5"},
-                {"jpg", "6"}, {"png", "7"} ,{"tif", "8"},
-                {"tiff", "9"}, {"ico", "10"}
-        };
+        String imgeArray[] = {"bmp", "dib", "gif",
+                "jfif", "jpe", "jpeg", "jpg", "png", "tif",
+                "tiff", "ico"};
         boolean isP = false;
         // 遍历名称数组
-        for(int i = 0; i<imgeArray.length;i++){
-           if(imgeArray[i].equals(tmpName.toLowerCase())){
-               isP = true;
-           }
+        for (int i = 0; i < imgeArray.length; i++) {
+            if (imgeArray[i].equals(tmpName.toLowerCase())) {
+                isP = true;
+            }
         }
         return isP;
     }

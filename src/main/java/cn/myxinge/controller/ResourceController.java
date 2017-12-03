@@ -26,7 +26,7 @@ public class ResourceController {
         }
         Blog blog = new Blog();
         blog.setId(blogId);
-        String sysurl = resourceService.upload(resource, blog);
+        String sysurl = resourceService.upload(resource, blog,url);
         if("-1".equals(sysurl)){
             return ResponseUtil.returnJson(false, "上传失败");
         }else{

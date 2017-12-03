@@ -1,13 +1,11 @@
 package cn.myxinge.controller;
 
-import cn.myxinge.common.WriteMyLog;
 import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.BlogService;
 import cn.myxinge.service.ResourceService;
 import cn.myxinge.utils.FileUtil;
 import cn.myxinge.utils.ResponseUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by chenxinghua on 2017/11/9.
@@ -67,30 +69,43 @@ public class BlogController {
      * html页面 ， blog 博客对象 ，用来存储到数据库
      */
     @RequestMapping(value = "/add", method = {RequestMethod.POST})
-    public JSONObject addBlog(MultipartFile html, MultipartFile mainImg, Blog blog) {
+    public JSONObject addBlog(MultipartFile html, MultipartFile mainImg, Blog blog) throws IOException {
 
         if (html == null || StringUtils.isEmpty(html.getOriginalFilename()) ||
                 !html.getOriginalFilename().endsWith(".html")) {
-            return ResponseUtil.returnJson(true, "博客页面为空或文件格式有误");
+            return ResponseUtil.returnJson(true, "博客页面为空或文件 格式有误");
         }
 
         if (mainImg == null || StringUtils.isEmpty(mainImg.getOriginalFilename()) ||
                 !FileUtil.isPicture(mainImg.getOriginalFilename())) {
             return ResponseUtil.returnJson(true, "需要一个大图");
         }
-
         blogService.addBlog(blog);
-        String htmlUrl = resourceService.upload(html, blog);
-        if ("-1".equals(htmlUrl)) {
-            return ResponseUtil.returnJson(false, "HTML上传失败");
+        //解析html，将图片上传至FastDFS,并更改其URL
+        byte[] htmlBytes = html.getBytes();
+        String htmlStr = new String(htmlBytes,"utf-8");
+        //找到<img/>的正则表达式
+        Set<String> imageSrc = getImageSrc(htmlStr);
+        //存储资源图片
+        Resource r = null;
+        FileInputStream is = null;
+        for(String img : imageSrc){
+            String fileName = img.substring(img.lastIndexOf("/") + 1);
+            r = new Resource();
+            is = new FileInputStream(fileName);
+            r.setUrl(blog.getTitle()+"/"+fileName);
+            r.setDescription("博客图片资源");
+            r.setFilename(fileName);
+            r.setSuffix(fileName.substring(fileName.lastIndexOf(".")+1));
+            r.setBlogid(blog.getId());
+
+            //存储资源
+            resourceService.upload(is,r);
+，
         }
-        String imgUrl = resourceService.upload(mainImg, blog);
-        if ("-1".equals(imgUrl)) {
-            return ResponseUtil.returnJson(false, "图片上传失败");
-        }
-        blog.setSysyUrl(htmlUrl);
-        blog.setMainImgUrl(imgUrl);
-        blogService.save(blog);
+
+
+
         return ResponseUtil.returnJson(true, "成功");
     }
 
@@ -190,8 +205,8 @@ public class BlogController {
             blogService.save(blogById);
 
         } else {
-
-            if (!html.getOriginalFilename().endsWith(".html")) {
+            //todo
+            /*if (!html.getOriginalFilename().endsWith(".html")) {
                 return ResponseUtil.returnJson(false, "文件不是html");
             }
 
@@ -199,7 +214,7 @@ public class BlogController {
             blog.setUpdatetime(new Date());
             blog.setUrl(blogById.getUrl());
             //添加
-            String htmlUrl = resourceService.upload(html, blog);
+            String htmlUrl = resourceService.upload(html, blog, null);
             if ("-1".equals(htmlUrl)) {
                 return ResponseUtil.returnJson(false, "文件上传失败");
             }
@@ -217,12 +232,32 @@ public class BlogController {
 
             if (!"success".equals(rtn)) {
                 return ResponseUtil.returnJson(false, "原有Html页面删除失败。");
-            }
+            }*/
         }
 
         return ResponseUtil.returnJson(true, "成功");
     }
 
+    /**
+     * 取出所有img标签，将其上传至服务器
+     * @param htmlCode
+     * @return
+     */
+    public static Set getImageSrc(String htmlCode) {
+        Set<String> imageSrcList = new HashSet<String>();
+        Pattern p = Pattern.compile("<img\\b[^>]*\\bsrc\\b\\s*=\\s*('|\")?([^'\"\n\r\f>]+(\\.jpg|\\.bmp|\\.eps|\\.gif|\\.mif|\\.miff|\\.png|\\.tif|\\.tiff|\\.svg|\\.wmf|\\.jpe|\\.jpeg|\\.dib|\\.ico|\\.tga|\\.cut|\\.pic)\\b)[^>]*>", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(htmlCode);
+        String quote = null;
+        String src = null;
+        while (m.find()) {
+            quote = m.group(1);
+
+            // src=https://sms.reyo.cn:443/temp/screenshot/zY9Ur-KcyY6-2fVB1-1FSH4.png
+            src = (quote == null || quote.trim().length() == 0) ? m.group(2).split("\\s+")[0] : m.group(2);
+            imageSrcList.add(src);
+        }
+        return imageSrcList;
+    }
 }
 
 

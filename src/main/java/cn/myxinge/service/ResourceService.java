@@ -4,12 +4,14 @@ import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
+
 /**
  * Created by chenxinghua on 2017/11/20.
  */
 public interface ResourceService {
 
-    String upload(MultipartFile reso, Blog blog);
+    String upload(InputStream is,Resource resource);
 
     /**
      * 上传

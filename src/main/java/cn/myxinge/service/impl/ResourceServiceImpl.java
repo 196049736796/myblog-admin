@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,8 +40,7 @@ public class ResourceServiceImpl implements ResourceService {
      * @return 上传结果
      */
     @Override
-    public String upload(MultipartFile reso, Blog blog) {
-        InputStream is = null;
+    public String upload(InputStream is,Resource resource) {
         FileOutputStream out = null;
         String rootPath = this.getClass().getResource("/").getPath();
         String filePath = null;
@@ -56,8 +55,7 @@ public class ResourceServiceImpl implements ResourceService {
 
             byte[] tempbytes = new byte[1024];
             int byteread = 0;
-            is = reso.getInputStream();
-            out = new FileOutputStream(filePath + reso.getOriginalFilename());
+            out = new FileOutputStream(filePath + resource.getFilename());
             while ((byteread = is.read(tempbytes)) != -1) {
                 out.write(tempbytes, 0, byteread);
             }
@@ -65,17 +63,17 @@ public class ResourceServiceImpl implements ResourceService {
             //上传
             FastDFSClient fastDFSClient = null;
             fastDFSClient = new FastDFSClient(rootPath + "static/conf/client.conf");
-            int dian = reso.getOriginalFilename().indexOf(".");
-            String sysyUrl = fastDFSClient.uploadFile(filePath + reso.getOriginalFilename(),
-                    reso.getOriginalFilename().substring(dian + 1));
-            String suffix =  reso.getOriginalFilename().substring(dian + 1);
+            int dian = resource.getFilename().indexOf(".");
+            String sysyUrl = fastDFSClient.uploadFile(filePath + resource.getFilename(),
+                    resource.getFilename().substring(dian + 1));
+            String suffix = resource.getFilename().substring(dian + 1);
 
             //存储资源表
-            Resource resource= new Resource();
-            resource.setDescription(suffix+"文件");
+            resource.setDescription(suffix + "文件");
             resource.setSuffix(suffix);
             resource.setSysyUrl(sysyUrl);
-            resource.setBlogid(blog.getId());
+            resource.setUrl(StringUtils.isEmpty(resource.getUrl()) ? "/" : resource.getUrl());
+            resource.setBlogid(resource.getBlogid());
             resourceDao.save(resource);
             return sysyUrl;
         } catch (Exception e) {
@@ -94,7 +92,7 @@ public class ResourceServiceImpl implements ResourceService {
             }
 
             //删除临时文件
-            File file = new File(filePath + reso.getOriginalFilename());
+            File file = new File(filePath + resource.getFilename());
             if (file != null) {
                 file.delete();
             }
@@ -159,14 +157,14 @@ public class ResourceServiceImpl implements ResourceService {
 
         Example<Resource> example = Example.of(resource, matcher);
         List<Resource> all = resourceDao.findAll(example);
-        if(all.size() == 0){
+        if (all.size() == 0) {
             //之前没有页面资源
             return "none pages";
         }
         FastDFSClient fastDFSClient = new FastDFSClient(confPath);
         int i = fastDFSClient.deleteFile(all.get(0).getSysyUrl());
 
-        if(i != 0){
+        if (i != 0) {
             return "delete faile";
         }
 

@@ -11,6 +11,7 @@ public class Resource {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;//ID
+    private String filename;
     private String description;//资源描述
     private String url;//页面url
     private String sysyUrl;//系统url
@@ -65,6 +66,14 @@ public class Resource {
     public void setBlogid(Integer blogid) {
         this.blogid = blogid;
     }
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
 
     @Override
     public String toString() {
