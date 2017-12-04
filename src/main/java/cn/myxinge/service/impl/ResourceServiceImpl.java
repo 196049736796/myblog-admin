@@ -1,7 +1,6 @@
 package cn.myxinge.service.impl;
 
 import cn.myxinge.dao.ResourceDao;
-import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.ResourceService;
 import cn.myxinge.utils.FastDFSClient;
@@ -9,17 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,6 +30,7 @@ public class ResourceServiceImpl implements ResourceService {
     private String confPath;
     @Autowired
     private ResourceDao resourceDao;
+
 
     /**
      * 上传资源
@@ -71,6 +69,8 @@ public class ResourceServiceImpl implements ResourceService {
             //存储资源表
             resource.setDescription(suffix + "文件");
             resource.setSysyUrl(sysyUrl);
+            resource.setState(Resource.STATE_USE);
+            resource.setCreatetime(new Date());
             resourceDao.save(resource);
             return sysyUrl;
         } catch (Exception e) {
@@ -125,7 +125,9 @@ public class ResourceServiceImpl implements ResourceService {
                     delFailList.add(r);
                 } else {
                     //删除数据库记录
-                    resourceDao.delete(r);
+//                    resourceDao.delete(r);
+                    r.setState(Resource.STATE_UNUSE);
+                    resourceDao.save(r);
                 }
             }
         }
@@ -166,8 +168,40 @@ public class ResourceServiceImpl implements ResourceService {
         }
 
         //数据库删除记录
-        resourceDao.delete(all.get(0));
+//        resourceDao.delete(all.get(0));
+        Resource html = all.get(0);
+        html.setState(Resource.STATE_UNUSE);
+        resourceDao.save(html);
+        return "success";
+    }
 
+    @Override
+    public Page<Resource> list(Integer page, Integer rows) {
+        Sort sort = new Sort(Sort.Direction.DESC, "createtime");
+        int firstResult = (page - 1) * rows;
+        Pageable pageable = new PageRequest(firstResult, rows, sort);
+        return resourceDao.findAll(pageable);
+    }
+
+    @Override
+    public long getCount(Resource resource) {
+        return resourceDao.count();
+    }
+
+    @Override
+    public Resource getById(Integer id) {
+        return resourceDao.findOne(id);
+    }
+
+    @Override
+    public String deleteSysFile(Resource r) throws Exception {
+
+        FastDFSClient fastDFSClient = new FastDFSClient(confPath);
+        int i = fastDFSClient.deleteFile(r.getSysyUrl());
+
+        if (i != 0) {
+            return "delete faile";
+        }
         return "success";
     }
 }

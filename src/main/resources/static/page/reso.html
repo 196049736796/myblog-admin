@@ -25,12 +25,32 @@
             {field: 'url', title: '地址', width: 100},
             {field: 'sysyUrl', title: '页面地址', width: 100},
             {field: 'suffix', title: '文件后缀', width: 100},
-
+            {
+                field: 'createtime', title: '上传时间', width: 130,
+                formatter: function (value, row, index) {
+                    if (value) {
+                        return new Date(value).Format("yyyy-MM-dd hh:mm:ss");
+                    }
+                }
+            },
+            {
+                field: 'state', title: '文件状态', width: 100,
+                formatter: function (value, row, index) {
+                    if (value == 0) {
+                        return "<span style='color: darkred'>未使用</span>";
+                    }
+                    if (value == 1) {
+                        return "<span style='color: #00ee00'>已使用</span>";
+                    }
+                    if (value == -1) {
+                        return "<span style='color:red'>已删除</span>";
+                    }
+                }
+            },
             {
                 field: '-', title: '操作', width: 200,
                 formatter: function (value, row, index) {
-                    var oper = "<a href=\"javascript:void(0)\" onclick=\"uploadRe("+row.id+")\" target=\"_blank\">资源上传</a>";
-                    oper += "<a href=\"http://www.myxinge.cn/" + row.url + "\" target='_blank'>预览</a>";
+                    var oper = "<a href=\"http://www.myxinge.cn/" + row.sysyUrl + "\" target='_blank'>预览</a>";
                     oper += '<a href="javascript:void(0)" style="color:red" onclick="del(' + row.id + ')">删除</a>';
                     return oper;
                 }
@@ -39,6 +59,19 @@
     </script>
 </head>
 <body>
-
+<!--条件查询表单-->
+<div class="easyui-panel" style="padding-left:4px;border-bottom:0px;">
+    <div style="height:2px;"></div>
+    <form id="searchForm">
+        文件名：<input name="filename">
+        地址：<input name="url">
+        博客: <input name="blogid">
+        状态：<input name="state">
+        <button type="button" id="btnSearch">查询</button>
+        <button type="button" id="btnReset">清除</button>
+    </form>
+    <div style="height:2px;"></div>
+</div>
+<table id="grid"></table>
 </body>
 </html>

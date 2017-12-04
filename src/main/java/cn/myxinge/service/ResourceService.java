@@ -1,8 +1,7 @@
 package cn.myxinge.service;
 
-import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
 
 import java.io.InputStream;
 
@@ -37,5 +36,32 @@ public interface ResourceService {
      */
     String deleteHtml(Resource resource) throws Exception;
 
+    /**
+     * 保存，针对mysql数据库
+     * @param resource
+     */
     public void save(Resource resource);
+
+    /**
+     * 列表显示
+     * @param page
+     * @param rows
+     * @return
+     */
+    Page<Resource> list(Integer page, Integer rows);
+
+    /**
+     * 获取数据条目数量
+     * @param resource 条件
+     * @return
+     */
+    long getCount(Resource resource);
+
+    Resource getById(Integer id);
+
+    /**
+     * 删除系统文件
+     * @param r
+     */
+    String deleteSysFile(Resource r) throws Exception;
 }
