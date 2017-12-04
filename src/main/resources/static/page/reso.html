@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>资源管理</title>
+    <link rel="stylesheet" type="text/css" href="ui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="ui/themes/icon.css">
+    <script type="text/javascript" src="ui/jquery.min.js"></script>
+    <script type="text/javascript" src="ui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="ui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="ui/jquery.serializejson.min.js"></script>
+    <script type="text/javascript" src="js/crud.js"></script>
+    <script type="text/javascript" src="js/date.js"></script>
+    <style type="text/css">
+        a {
+            margin-left: 5px;
+        }
+    </style>
+    <script type="text/javascript">
+        var name = "resouce";
+        var columns = [[
+            {field: 'id', title: '编号', width: 60},
+            {field: 'description', title: '描述', width: 100},
+            {field: 'filename', title: '文件名', width: 100},
+            {field: 'url', title: '地址', width: 100},
+            {field: 'sysyUrl', title: '页面地址', width: 100},
+            {field: 'suffix', title: '文件后缀', width: 100},
+
+            {
+                field: '-', title: '操作', width: 200,
+                formatter: function (value, row, index) {
+                    var oper = "<a href=\"javascript:void(0)\" onclick=\"uploadRe("+row.id+")\" target=\"_blank\">资源上传</a>";
+                    oper += "<a href=\"http://www.myxinge.cn/" + row.url + "\" target='_blank'>预览</a>";
+                    oper += '<a href="javascript:void(0)" style="color:red" onclick="del(' + row.id + ')">删除</a>';
+                    return oper;
+                }
+            }
+        ]];
+    </script>
+</head>
+<body>
+
+</body>
+</html>

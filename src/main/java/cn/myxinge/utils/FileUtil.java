@@ -4,6 +4,7 @@ import org.hibernate.annotations.Check;
 import org.springframework.util.StringUtils;
 
 import java.time.temporal.Temporal;
+import java.util.UUID;
 
 /**
  * Created by chenxinghua on 2017/12/2.
@@ -31,5 +32,16 @@ public class FileUtil {
             }
         }
         return isP;
+    }
+
+    /**
+     * 返回UUID文件名
+     *
+     * @param fileName
+     * @return
+     */
+    public static String uuidName(String fileName) {
+        String suffix = fileName.substring(fileName.lastIndexOf("."));
+        return UUID.randomUUID().toString().replace("-","").toLowerCase()+suffix;
     }
 }

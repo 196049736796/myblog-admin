@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -19,8 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +38,8 @@ public class BlogController {
     private BlogService blogService;
     @Autowired
     private ResourceService resourceService;
+    @Value("${baseUrl}")
+    private String baseUrl;
 
     /**
      * 根据博客url获取博客内容
@@ -83,30 +85,67 @@ public class BlogController {
         blogService.addBlog(blog);
         //解析html，将图片上传至FastDFS,并更改其URL
         byte[] htmlBytes = html.getBytes();
-        String htmlStr = new String(htmlBytes,"utf-8");
+        String htmlStr = new String(htmlBytes, "utf-8");
         //找到<img/>的正则表达式
         Set<String> imageSrc = getImageSrc(htmlStr);
         //存储资源图片
         Resource r = null;
         FileInputStream is = null;
-        for(String img : imageSrc){
-            String fileName = img.substring(img.lastIndexOf("/") + 1);
-            r = new Resource();
-            is = new FileInputStream(fileName);
-            r.setUrl(blog.getTitle()+"/"+fileName);
-            r.setDescription("博客图片资源");
-            r.setFilename(fileName);
-            r.setSuffix(fileName.substring(fileName.lastIndexOf(".")+1));
-            r.setBlogid(blog.getId());
-
+        for (String img : imageSrc) {
+            String fileName = img.substring(img.lastIndexOf("\\") + 1);
+            r = getResoByName(FileUtil.uuidName(fileName), blog);
+            is = new FileInputStream(img);
             //存储资源
-            resourceService.upload(is,r);
-，
+            String sysUrl = resourceService.upload(is, r);
+            if ("-1".equals(sysUrl)) {
+                LOG.error("资源：" + r.getFilename() + "上传失败");
+                continue;
+            }
+            //更新路径
+            htmlStr = htmlStr.replace(img, baseUrl + sysUrl);
         }
 
+        //存储大图
+        String fileName = mainImg.getOriginalFilename()
+                .substring(mainImg.getOriginalFilename().lastIndexOf("/") + 1);
+        r = getResoByName(FileUtil.uuidName(fileName), blog);
+        String mainImgUrl = resourceService.upload(mainImg.getInputStream(), r);
+        if ("-1".equals(mainImgUrl)) {
+            LOG.error("HTML上传失败");
+            //此时，因为资源已经上传，就算html上传失败也要存储博客
+        }
 
+        //存储html
+        //写文件
+        String dirPath = this.getClass().getResource("/")
+                .getPath() + "static/temp/";
+        File f = new File(dirPath);
+        if (!f.exists()) {
+            f.mkdirs();
+        }
 
+        fileName = html.getOriginalFilename()
+                .substring(html.getOriginalFilename().lastIndexOf("/") + 1);
+        r = getResoByName(fileName, blog);
+        String htmlUrl = resourceService.upload(new ByteArrayInputStream(htmlStr.getBytes()), r);
+
+        if ("-1".equals(htmlUrl)) {
+            LOG.error("主图上传失败");
+            //此时，因为资源已经上传，就算上传失败也要存储博客
+        }
+        blog.setSysyUrl(htmlUrl);
+        blog.setMainImgUrl(mainImgUrl);
+        blogService.save(blog);
         return ResponseUtil.returnJson(true, "成功");
+    }
+
+    private Resource getResoByName(String fileName, Blog blog) {
+        Resource r = new Resource();
+        r.setUrl(fileName);
+        r.setFilename(fileName);
+        r.setSuffix(fileName.substring(fileName.lastIndexOf(".") + 1));
+        r.setBlogid(blog.getId());
+        return r;
     }
 
     @RequestMapping(value = "/list", method = {RequestMethod.GET})
@@ -240,6 +279,7 @@ public class BlogController {
 
     /**
      * 取出所有img标签，将其上传至服务器
+     *
      * @param htmlCode
      * @return
      */

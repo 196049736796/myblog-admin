@@ -70,10 +70,7 @@ public class ResourceServiceImpl implements ResourceService {
 
             //存储资源表
             resource.setDescription(suffix + "文件");
-            resource.setSuffix(suffix);
             resource.setSysyUrl(sysyUrl);
-            resource.setUrl(StringUtils.isEmpty(resource.getUrl()) ? "/" : resource.getUrl());
-            resource.setBlogid(resource.getBlogid());
             resourceDao.save(resource);
             return sysyUrl;
         } catch (Exception e) {
@@ -82,7 +79,7 @@ public class ResourceServiceImpl implements ResourceService {
             try {
                 is.close();
             } catch (IOException e) {
-                LOG.error("博客上传异常：" + e.getCause());
+                LOG.error("博客上传异常：" + e);
                 return "-1";
             }
             try {
