@@ -1,23 +1,18 @@
 package cn.myxinge.controller;
 
-import cn.myxinge.entity.Blog;
-import cn.myxinge.entity.BoardMsg;
-import cn.myxinge.entity.Resource;
 import cn.myxinge.entity.VisitIp;
+import cn.myxinge.service.MenuService;
 import cn.myxinge.service.VisitIpService;
 import cn.myxinge.utils.ResponseUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,27 +20,23 @@ import java.util.Map;
  */
 @RequestMapping(value = "/admin/visit")
 @RestController
-public class VisitController {
+public class VisitController extends BaseController<VisitIp> {
     private Logger LOG = LoggerFactory.getLogger(VisitController.class);
     @Autowired
     private VisitIpService visitIpService;
 
     @RequestMapping(value = "/save",method = {RequestMethod.POST})
     public JSONObject save(VisitIp visitIp) throws ParseException {
-        visitIpService.save(visitIp);
-        return ResponseUtil.returnJson(true,"success");
+        String rtb = super.add(visitIp);
+        if("1".equals(rtb)){
+            return ResponseUtil.returnJson(true,"success");
+        }
+        return ResponseUtil.returnJson(false,"failre");
     }
 
-    @RequestMapping(value = "/listWithoutState",method = {RequestMethod.GET,RequestMethod.POST})
-    public Map list(Integer page, Integer rows){
-        Page<VisitIp> data = visitIpService.list(page, rows);
-        long total = visitIpService.getCount(null);
-
-        Map<String, Object> mapData = new HashMap<String, Object>();
-        mapData.put("total", total);
-        mapData.put("rows", data.getContent());
-
-        return mapData;
+    @RequestMapping(value = "/list",method = {RequestMethod.GET,RequestMethod.POST})
+    public Map list(VisitIp visitIp,Integer page, Integer rows){
+        return super.list(visitIp,page,rows);
     }
 
     //跟据id删除 -- 带资源
@@ -56,12 +47,18 @@ public class VisitController {
         }
 
         try {
-            visitIpService.delete(id);
+            super.delete(id);
         } catch (Exception e) {
             LOG.error("删除失败",e);
             return ResponseUtil.returnJson(false, "出现异常");
         }
 
         return ResponseUtil.returnJson(true, "成功");
+    }
+
+    @Autowired
+    public void setBlogService( VisitIpService visitIpService) {
+        this.visitIpService = visitIpService;
+        super.setBaseService(visitIpService);
     }
 }

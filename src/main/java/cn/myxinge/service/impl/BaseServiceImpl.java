@@ -73,6 +73,10 @@ public class BaseServiceImpl<T> implements BaseService<T> {
         return jpaRepository.count();
     }
 
+    @Override
+    public T getById(Serializable id) {
+        return (T) jpaRepository.findOne(id);
+    }
 
     /**
      * 获取运行时泛型

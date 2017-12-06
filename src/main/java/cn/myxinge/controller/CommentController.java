@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
  * 评论处理
  */
 @RestController
-public class CommentController {
+public class CommentController extends BaseController{
     @RequestMapping("/saveComment")
     public void test(@RequestBody String body){
-        System.out.println("----------");
-        System.out.println(body);
+
     }
 }
 

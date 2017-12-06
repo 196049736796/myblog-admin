@@ -1,15 +1,16 @@
 package cn.myxinge.service.impl;
 
+import cn.myxinge.dao.BlogDao;
 import cn.myxinge.dao.ResourceDao;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.ResourceService;
 import cn.myxinge.utils.FastDFSClient;
-import cn.myxinge.utils.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -24,12 +25,11 @@ import java.util.List;
  * Created by chenxinghua on 2017/11/20.
  */
 @Service
-public class ResourceServiceImpl implements ResourceService {
+public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements ResourceService {
 
     private Logger LOG = LoggerFactory.getLogger(ResourceServiceImpl.class);
     @Value("${fastdfs.trackServer.conf.path}")
     private String confPath;
-    @Autowired
     private ResourceDao resourceDao;
 
 
@@ -144,58 +144,6 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public void save(Resource resource) {
-        resourceDao.save(resource);
-    }
-
-    @Override
-    public String deleteHtml(Resource resource) throws Exception {
-        //创建匹配器，即如何使用查询条件
-        ExampleMatcher matcher = ExampleMatcher.matching() //构建对象
-                .withMatcher("blogid", ExampleMatcher.GenericPropertyMatchers.caseSensitive())
-                .withMatcher("suffix", ExampleMatcher.GenericPropertyMatchers.caseSensitive())
-                .withIgnorePaths("focus");
-
-        Example<Resource> example = Example.of(resource, matcher);
-        List<Resource> all = resourceDao.findAll(example);
-        if (all.size() == 0) {
-            //之前没有页面资源
-            return "none pages";
-        }
-        FastDFSClient fastDFSClient = new FastDFSClient(confPath);
-        int i = fastDFSClient.deleteFile(all.get(0).getSysyUrl());
-
-        if (i != 0) {
-            return "delete faile";
-        }
-
-        //数据库删除记录
-//        resourceDao.delete(all.get(0));
-        Resource html = all.get(0);
-        html.setState(Resource.STATE_UNUSE);
-        resourceDao.save(html);
-        return "success";
-    }
-
-    @Override
-    public Page<Resource> list(Integer page, Integer rows) {
-        Sort sort = new Sort(Sort.Direction.DESC, "createtime");
-        int firstResult = (page - 1) * rows;
-        Pageable pageable = new PageRequest(firstResult, rows, sort);
-        return resourceDao.findAll(pageable);
-    }
-
-    @Override
-    public long getCount(Resource resource) {
-        return resourceDao.count();
-    }
-
-    @Override
-    public Resource getById(Integer id) {
-        return resourceDao.findOne(id);
-    }
-
-    @Override
     public String deleteSysFile(Resource r) throws Exception {
 
         FastDFSClient fastDFSClient = new FastDFSClient(confPath);
@@ -205,6 +153,12 @@ public class ResourceServiceImpl implements ResourceService {
             return "delete faile";
         }
         return "success";
+    }
+
+    @Autowired
+    public void setBlogDao(ResourceDao resourceDao) {
+        this.resourceDao = resourceDao;
+        super.setJpaRepository(resourceDao);
     }
 }
 

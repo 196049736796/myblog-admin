@@ -1,5 +1,6 @@
 package cn.myxinge.service.impl;
 
+import cn.myxinge.dao.BoardMsgDao;
 import cn.myxinge.dao.MenuDao;
 import cn.myxinge.entity.Menu;
 import cn.myxinge.service.MenuService;
@@ -12,12 +13,17 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-public class MenuServiceImpl implements MenuService {
-    @Autowired
+public class MenuServiceImpl extends BaseServiceImpl<Menu> implements MenuService {
     private MenuDao menuDao;
     @Override
     public Menu getRootMenu() {
         return menuDao.findOne("0");
+    }
+
+    @Autowired
+    public void setBlogDao(MenuDao menuDao) {
+        this.menuDao = menuDao;
+        super.setJpaRepository(menuDao);
     }
 }
 

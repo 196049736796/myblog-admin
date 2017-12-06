@@ -5,6 +5,6 @@ import cn.myxinge.entity.Menu;
 /**
  * Created by XingChen on 2017/11/19.
  */
-public interface MenuService {
+public interface MenuService extends BaseService<Menu> {
     Menu getRootMenu();
 }

@@ -16,7 +16,7 @@ $(function () {
             iconCls: 'icon-add',
             handler: function () {
                 //设置保存按钮提交的方法为add
-                method = "add";
+                method = "addWithoutHtml";
                 $('#editForm').form('clear');            //更改过
                 //关闭编辑窗口
                 $('#editDlg').dialog('open');            //更改过
@@ -86,14 +86,17 @@ $(function () {
                     contentType: false,
                     processData: false,
                     success: function (rtn) {
-                        //{success:true, message: 操作失败}
                         $.messager.alert('提示', rtn.message, 'info', function () {
-                            // if (rtn.success) {
-                            //关闭弹出的窗口
-                            $('#editDlg').dialog('close');
-                            //刷新表格
-                            $('#grid').datagrid('reload');
-                            // }
+                            if (rtn.success) {
+                                var r = confirm("是否前往编辑？");
+                                if (r) {
+                                    location.href="/page/editor.html?id="+rtn.id;
+                                } else {
+                                    $('#editDlg').dialog('close');
+                                    //刷新表格
+                                    $('#grid').datagrid('reload');
+                                }
+                            }
                         });
                     }
                 });

@@ -8,7 +8,7 @@ import java.io.InputStream;
 /**
  * Created by chenxinghua on 2017/11/20.
  */
-public interface ResourceService {
+public interface ResourceService extends BaseService<Resource>{
 
     String upload(InputStream is,Resource resource);
 
@@ -28,36 +28,6 @@ public interface ResourceService {
      * @throws Exception
      */
     String deleteWithBlog(Resource resource) throws Exception;
-
-    /**
-     * 删除Html页面
-     * @param resource
-     * @return
-     */
-    String deleteHtml(Resource resource) throws Exception;
-
-    /**
-     * 保存，针对mysql数据库
-     * @param resource
-     */
-    public void save(Resource resource);
-
-    /**
-     * 列表显示
-     * @param page
-     * @param rows
-     * @return
-     */
-    Page<Resource> list(Integer page, Integer rows);
-
-    /**
-     * 获取数据条目数量
-     * @param resource 条件
-     * @return
-     */
-    long getCount(Resource resource);
-
-    Resource getById(Integer id);
 
     /**
      * 删除系统文件

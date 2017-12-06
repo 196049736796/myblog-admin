@@ -1,20 +1,17 @@
 package cn.myxinge.controller;
 
-import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.BoardMsg;
+import cn.myxinge.service.BlogService;
 import cn.myxinge.service.BoardMsgService;
 import cn.myxinge.utils.ResponseUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Controller;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,7 +20,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/admin/boardMsg")
-public class BoardMsgController {
+public class BoardMsgController extends BaseController<BoardMsg>{
 
     @Autowired
     private BoardMsgService boardMsgService;
@@ -35,19 +32,22 @@ public class BoardMsgController {
         }
         //存储
         msg.setCreatetime(new Date());
-        boardMsgService.save(msg);
+        boardMsgService.add(msg);
         return ResponseUtil.returnJson(true,"success");
     }
 
-    @RequestMapping(value = "/listWithoutState",method = {RequestMethod.GET,RequestMethod.POST})
-    public Map list(Integer page, Integer rows){
-        Page<BoardMsg> data = boardMsgService.list(page, rows);
-        long total = boardMsgService.getCount(null);
+    @RequestMapping(value = "/list",method = {RequestMethod.GET,RequestMethod.POST})
+    public Map list(BoardMsg boardMsg,Integer page, Integer rows){
+        return super.list(boardMsg,page,rows);
+    }
 
-        Map<String, Object> mapData = new HashMap<String, Object>();
-        mapData.put("total", total);
-        mapData.put("rows", data.getContent());
-
-        return mapData;
+    @Override
+    public Sort getSort() {
+        return new Sort(Sort.Direction.DESC, "createtime");
+    }
+    @Autowired
+    public void setBlogService(BoardMsgService boardMsgService) {
+        this.boardMsgService = boardMsgService;
+        super.setBaseService(boardMsgService);
     }
 }

@@ -1,5 +1,6 @@
 package cn.myxinge.service;
 
+import cn.myxinge.entity.Blog;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -19,4 +20,5 @@ public interface BaseService<T> {
     void add(T t);
     void delete(Serializable id);
     void update(T t);
+    T getById(Serializable id);
 }

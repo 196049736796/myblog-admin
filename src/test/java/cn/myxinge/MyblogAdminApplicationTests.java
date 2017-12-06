@@ -12,8 +12,8 @@ public class MyblogAdminApplicationTests {
 
     @Test
     public void testFastDFS() throws Exception {
-//        FastDFSClient fastDFSClient = new FastDFSClient("E:/Default_Test_Study/myblog-admin/src/main/resources/static/conf/static/conf/client.conf");
-//        String result = fastDFSClient.uploadFile("C:/Users/ASUS/Desktop/blog/这是什么字体.html", "html");
+//        FastDFSClient fastDFSClient = new FastDFSClient("E:\\mywork\\IdeaPro\\myblog-admin\\myblog-admin\\src\\main\\resources\\static\\conf\\client.conf");
+//        String result = fastDFSClient.uploadFile("C:\\Users\\ASUS\\Documents\\A_BLOG\\记一次Linx中安装java开发环境过程(下)\\FastDFS和Nginx的安装配置.html", "html");
 //        System.out.println(result);
     }
 

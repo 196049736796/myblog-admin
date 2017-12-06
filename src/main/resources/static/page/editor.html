@@ -62,10 +62,9 @@
         });
 
         $("#get-md-btn").bind('click', function () {
-            var title = prompt("上传到服务器，填写博客标题","未命名");
             $.ajax({
-                url: '/admin/resouce/uploadHtml',
-                data: {"md": testEditor.getMarkdown(),"title": title},
+                url: '/admin/blog/addHtml',
+                data: {"md": testEditor.getMarkdown(),"id": "102"},
                 type: "post",
                 success: function (rtn) {
                     alert(rtn);
