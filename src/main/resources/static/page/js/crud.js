@@ -5,47 +5,9 @@ var ty = "post";
 var listParam = "";
 var saveParam = "";
 $(function () {
-
-    //初始化文件上传窗口
-    $("#uploadDlg").dialog({
-        title: '数据导入',
-        width: 300,
-        height: 150,
-        closed: true,
-        cache: false,
-        modal: true,
-        buttons: [{
-            text: '导入',
-            iconCls: 'icon-ok',
-            handler: function () {
-                //获得文件上传表单
-                $.ajax({
-                    url: "supplier_doImport",
-                    data: new FormData($('#fileUploadForm')[0]),
-                    dataType: "json",
-                    type: "post",
-                    processData: false,//告诉jquery，发送的是字节流，不能转成字符集
-                    contentType: false,
-                    success: function (rtn) {
-                        $.messager.alert("提示", rtn.message, "info");
-                        //刷新列表
-                        $("#uploadDlg").dialog("close");
-                        $("#grid").datagrid("reload");
-                    }
-                });
-            }
-        }, {
-            text: '取消',
-            iconCls: 'icon-cancel',
-            handler: function () {
-                $("#uploadDlg").dialog("close");
-            }
-        }]
-    });
-
     //加载表格数据
     $('#grid').datagrid({
-        url: "/admin/" + name + '/listWithoutState' + listParam,
+        url: "/admin/" + name + '/list' + listParam,
         columns: columns,
         singleSelect: true,
         pagination: true,

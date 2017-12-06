@@ -24,61 +24,60 @@ import java.util.List;
  */
 @Service
 @Transactional
-public class BlogServiceImpl implements BlogService {
+public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogService {
     private static final Logger LOG = LoggerFactory.getLogger(BlogServiceImpl.class);
-    @Autowired
     private BlogDao blogDao;
     @Autowired
     private ResourceDao resourceDao;
 
-    @Override
-    public Blog getBlog(String url) {
+//    @Override
+//    public Blog getBlog(String url) {
+//
+//        Blog b = new Blog();
+//        b.setUrl(url);
+//
+//        ExampleMatcher matcher = ExampleMatcher.matching()
+//                .withMatcher("url", ExampleMatcher.GenericPropertyMatchers.caseSensitive());
+//
+//        List<Blog> list = blogDao.findAll(Example.of(b, matcher));
+//
+//        return list.size() > 0 ? list.get(0) : null;
+//    }
+//
+//    @Override
+//    public List<Blog> allBlog() {
+//        return blogDao.findAll();
+//    }
+//
+//    @Override
+//    public Page<Blog> newerBlog(int n) {
+//        Sort sort = new Sort(Sort.Direction.DESC, "createtime");
+//
+//        //状态判断 : 状态为1是才显示
+//        ExampleMatcher ma = ExampleMatcher.matching().withMatcher("state",
+//                ExampleMatcher.GenericPropertyMatchers.caseSensitive())
+//                .withIgnorePaths("focus");
+//        Blog blog = new Blog();
+//        blog.setState(Blog.STATE_ONLINE);
+//        Example<Blog> ex = Example.of(blog, ma);
+//
+//        Pageable pageable = new PageRequest(0, n, sort);
+//        return blogDao.findAll(ex, pageable);
+//    }
 
-        Blog b = new Blog();
-        b.setUrl(url);
-
-        ExampleMatcher matcher = ExampleMatcher.matching()
-                .withMatcher("url", ExampleMatcher.GenericPropertyMatchers.caseSensitive());
-
-        List<Blog> list = blogDao.findAll(Example.of(b, matcher));
-
-        return list.size() > 0 ? list.get(0) : null;
-    }
-
-    @Override
-    public List<Blog> allBlog() {
-        return blogDao.findAll();
-    }
-
-    @Override
-    public Page<Blog> newerBlog(int n) {
-        Sort sort = new Sort(Sort.Direction.DESC, "createtime");
-
-        //状态判断 : 状态为1是才显示
-        ExampleMatcher ma = ExampleMatcher.matching().withMatcher("state",
-                ExampleMatcher.GenericPropertyMatchers.caseSensitive())
-                .withIgnorePaths("focus");
-        Blog blog = new Blog();
-        blog.setState(Blog.STATE_ONLINE);
-        Example<Blog> ex = Example.of(blog, ma);
-
-        Pageable pageable = new PageRequest(0, n, sort);
-        return blogDao.findAll(ex, pageable);
-    }
-
-    @Override
-    public Page list(Blog add, Blog update, Integer page, Integer rows) {
-        Sort sort = new Sort(Sort.Direction.DESC, "createtime");
-        int firstResult = (page - 1) * rows;
-        ExampleMatcher ma = ExampleMatcher.matching().withMatcher("state",
-                ExampleMatcher.GenericPropertyMatchers.caseSensitive())
-                .withIgnorePaths("focus");
-        Blog blog = new Blog();
-        blog.setState(Blog.STATE_ONLINE);
-        Example<Blog> ex = Example.of(blog, ma);
-        Pageable pageable = new PageRequest(firstResult, rows, sort);
-        return blogDao.findAll(ex, pageable);
-    }
+//    @Override
+//    public Page list(Blog b, Integer page, Integer rows) {
+//        Sort sort = new Sort(Sort.Direction.DESC, "createtime");
+//        int firstResult = (page - 1) * rows;
+//        ExampleMatcher ma = ExampleMatcher.matching().withMatcher("state",
+//                ExampleMatcher.GenericPropertyMatchers.caseSensitive())
+//                .withIgnorePaths("focus");
+//        Blog blog = new Blog();
+//        blog.setState(Blog.STATE_ONLINE);
+//        Example<Blog> ex = Example.of(blog, ma);
+//        Pageable pageable = new PageRequest(firstResult, rows, sort);
+//        return blogDao.findAll(ex, pageable);
+//    }
 
     /**
      * 返回所有 不考虑状态
@@ -89,19 +88,19 @@ public class BlogServiceImpl implements BlogService {
      * @param rows
      * @return
      */
-    @Override
-    public Page listWithoutState(Blog add, Blog update, Integer page, Integer rows) {
-        Sort sort = new Sort(Sort.Direction.DESC, "createtime");
-        int firstResult = (page - 1) * rows;
-        Pageable pageable = new PageRequest(firstResult, rows, sort);
-        return blogDao.findAll(pageable);
-    }
+//    @Override
+//    public Page listWithoutState(Blog add, Blog update, Integer page, Integer rows) {
+//        Sort sort = new Sort(Sort.Direction.DESC, "createtime");
+//        int firstResult = (page - 1) * rows;
+//        Pageable pageable = new PageRequest(firstResult, rows, sort);
+//        return blogDao.findAll(pageable);
+//    }
 
-    @Override
-    public Long getCount(Blog o) {
-        //todo 条件查询未完成
-        return blogDao.count();
-    }
+//    @Override
+//    public Long getCount(Blog o) {
+//        //todo 条件查询未完成
+//        return blogDao.count();
+//    }
 
     /**
      * 博客上传存储(包括大图)
@@ -109,17 +108,17 @@ public class BlogServiceImpl implements BlogService {
      * @param html
      * @param blog
      */
-    @Override
-    public int addBlog(Blog blog) {
-        blog.setAuth(StringUtils.isEmpty(blog.getAuth()) ? "Xingchen" : blog.getAuth());
-        if (null == blog.getCreatetime()) {
-            blog.setCreatetime(new Date());
-            blog.setUpdatetime(null);
-        }
-        blog.setState(Blog.STATE_OFFLINE);
-        blogDao.save(blog);
-        return 0;
-    }
+//    @Override
+//    public int addBlog(Blog blog) {
+//        blog.setAuth(StringUtils.isEmpty(blog.getAuth()) ? "Xingchen" : blog.getAuth());
+//        if (null == blog.getCreatetime()) {
+//            blog.setCreatetime(new Date());
+//            blog.setUpdatetime(null);
+//        }
+//        blog.setState(Blog.STATE_OFFLINE);
+//        blogDao.save(blog);
+//        return 0;
+//    }
 
     /**
      * 通过ID查询博客
@@ -127,24 +126,33 @@ public class BlogServiceImpl implements BlogService {
      * @param id
      * @return
      */
-    @Override
-    public Blog getBlogById(Integer id) {
-        return blogDao.findOne(id);
+//    @Override
+//    public Blog getBlogById(Integer id) {
+//        return blogDao.findOne(id);
+//    }
+//
+//    /**
+//     * 删除博客
+//     */
+//    @Override
+//    public void delete(Integer id) {
+//        blogDao.delete(id);
+//    }
+//
+//
+//    @Override
+//    public void save(Blog blog) {
+//        blogDao.save(blog);
+//    }
+
+    @Autowired
+    public void setBlogDao(BlogDao blogDao) {
+        System.out.println(blogDao);
+        this.blogDao = blogDao;
+        super.setJpaRepository(blogDao);
     }
 
-    /**
-     * 删除博客
-     */
-    @Override
-    public void delete(Integer id) {
-        blogDao.delete(id);
-    }
 
-
-    @Override
-    public void save(Blog blog) {
-        blogDao.save(blog);
-    }
 }
 
 
