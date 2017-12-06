@@ -17,8 +17,7 @@ import java.util.Map;
  *
  * 父类
  */
-//@RestController
-//@RequestMapping("/page")
+
 public class BaseController<T> {
 
 //    @Autowired

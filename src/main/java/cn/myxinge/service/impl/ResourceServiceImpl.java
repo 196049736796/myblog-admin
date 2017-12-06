@@ -4,6 +4,7 @@ import cn.myxinge.dao.ResourceDao;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.ResourceService;
 import cn.myxinge.utils.FastDFSClient;
+import cn.myxinge.utils.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,7 @@ public class ResourceServiceImpl implements ResourceService {
             String suffix = resource.getFilename().substring(dian + 1);
 
             //存储资源表
+            resource.setSuffix(suffix);
             resource.setDescription(suffix + "文件");
             resource.setSysyUrl(sysyUrl);
             resource.setState(Resource.STATE_USE);
