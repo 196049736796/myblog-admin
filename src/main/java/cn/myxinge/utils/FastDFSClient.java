@@ -5,6 +5,7 @@ import org.csource.common.MyException;
 import org.csource.common.NameValuePair;
 import org.csource.fastdfs.*;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 
 /**
@@ -56,18 +57,20 @@ public class FastDFSClient {
 
     /**
      * 删除文件
-     * @param groupName 组名
+     *
+     * @param groupName  组名
      * @param remoteName 文件名
      * @return 结果
      * @throws IOException
      * @throws MyException
      */
-    public int deleteFile(String groupName,String remoteName) throws IOException, MyException {
-        return storageClient.delete_file(groupName,remoteName);
+    public int deleteFile(String groupName, String remoteName) throws IOException, MyException {
+        return storageClient.delete_file(groupName, remoteName);
     }
 
     /**
      * 删除文件 组名+路径
+     *
      * @param storagePath
      * @return
      * @throws IOException
@@ -77,5 +80,52 @@ public class FastDFSClient {
         return storageClient.delete_file1(storagePath);
     }
 
+    /**
+     * 文件下载到磁盘
+     *
+     * @param path   图片路径
+     * @param output 输出流 中包含要输出到磁盘的路径
+     * @return -1失败,0成功
+     */
+    public int download_file(String path, BufferedOutputStream output) {
+        int result = -1;
+        try {
+            byte[] b = storageClient.download_file1(path);
+            try {
+                if (b != null) {
+                    output.write(b);
+                    result = 0;
+                }
+            } catch (Exception e) {
+            } //用户可能取消了下载
+            finally {
+                if (output != null)
+                    try {
+                        output.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
+    /**
+     * 文本文件下载封装为字符串
+     *
+     * @param path
+     * @param output
+     * @return
+     */
+    public byte[] download_file(String path) {
+        try {
+            byte[] b = storageClient.download_file1(path);
+            return b;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

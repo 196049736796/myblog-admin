@@ -5,6 +5,7 @@ import cn.myxinge.entity.Resource;
 import cn.myxinge.service.BaseService;
 import cn.myxinge.service.BlogService;
 import cn.myxinge.service.ResourceService;
+import cn.myxinge.utils.FastDFSClient;
 import cn.myxinge.utils.FileUtil;
 import cn.myxinge.utils.ResponseUtil;
 import com.alibaba.fastjson.JSON;
@@ -94,10 +95,10 @@ public class BlogController extends BaseController<Blog> {
         }
 
         super.delete(id);
-
-        if (!"1".equals(isDelre)) {
-            return ResponseUtil.returnJson(true, "success");
-        }
+//todo 后期添加功能：如果页面选择 同时删除博客删除关联资源，才会删除资源。默认删除
+//        if (!"1".equals(isDelre)) {
+//            return ResponseUtil.returnJson(true, "success");
+//        }
 
         Resource resource = new Resource();
         resource.setBlogid(id);
@@ -150,69 +151,46 @@ public class BlogController extends BaseController<Blog> {
 
 
     /**
-     * 修改
+     * 添加/修改
      */
-    @RequestMapping(value = "/update", method = {RequestMethod.POST})
-    public JSONObject update(Blog blog, MultipartFile html) throws Exception {
-        if (null == blog || null == blog.getId()) {
-            return ResponseUtil.returnJson(false, "失败,博客不存在");
-        }
-
-        blog.setUpdatetime(new Date());
-        //页面为空
-        if (html == null || StringUtils.isEmpty(html.getOriginalFilename())) {
-            blogService.update(blog);
-        } else {
-
-            Resource r = new Resource();
-            r.setBlogid(blog.getId());
-            //添加
-            String htmlUrl = resourceService.upload(html.getInputStream(), r);
-            if ("-1".equals(htmlUrl)) {
-                return ResponseUtil.returnJson(false, "文件上传失败");
-            }
-            blog.setSysyUrl(htmlUrl);
-            blogService.update(blog);
-
-            //删除原来的页面
-            Resource resource = new Resource();
-
-            //todo
-
-        }
-
-        return ResponseUtil.returnJson(true, "成功");
-    }
-
-
-    /**
-     * 添加
-     */
-    @RequestMapping("/addWithoutHtml")
+    @RequestMapping("/saveWithoutHtml")
     public JSONObject add(Blog blog, MultipartFile mainImg) {
+        if (null != blog.getId()) {
+            //此时标识数据更新，而不是添加
+            Blog syBlog = blogService.getById(blog.getId());
+            blog.setCreatetime(syBlog.getCreatetime());
+            blog.setSysyUrl(syBlog.getSysyUrl());
+            blog.setMainImgUrl(syBlog.getMainImgUrl());
+        }
         //处理md文件上传逻辑
         blog.setState(Blog.STATE_OFFLINE);
-//        blog.setCreatetime(new Date());           //这个放在html完成后更新
         blog.setAuth("Xingchen");
-        String rtn = super.add(blog);
+        String rtn = super.add(blog);   //注：虽然方法名叫做add,但当数据有id时，表明是更新，执行的是update
         if ("1".equals(rtn)) {
             try {
-                if (null != mainImg) {
+                if (null != mainImg && !StringUtils.isEmpty(mainImg.getOriginalFilename())) {
                     String imgUrl = resourceService.upload(mainImg.getInputStream(), doResource(blog.getId(), mainImg.getOriginalFilename()));
                     if (!"-1".equals(imgUrl)) {
+                        //删除原有的img
+                        if (null != blog.getMainImgUrl()) {
+                            Resource r = new Resource();
+                            r.setSysyUrl(blog.getMainImgUrl());
+                            resourceService.deleteSysFile(r);
+                        }
                         blog.setMainImgUrl(imgUrl);
-                    }else{
+                        super.update(blog);
+                    } else {
                         return ResponseUtil.returnJson(false, "上传失败");
                     }
                 }
-                super.update(blog);
-                JSONObject json = ResponseUtil.returnJson(true, "上传成功");
+                JSONObject json = ResponseUtil.returnJson(true, "保存成功");
                 Object eval = JSONPath.eval(json, "$.success");
                 JSONPath.set(json, "$.id", blog.getId());
                 return json;
-            } catch (IOException e) {
-                LOG.error("上传失败", e);
-                return ResponseUtil.returnJson(false, "上传失败，发生异常");
+
+            } catch (Exception e) {
+                LOG.error("上传或删除源文件·失败", e);
+                return ResponseUtil.returnJson(false, "上传或删除源文件·失败，发生异常");
             }
         } else {
             return ResponseUtil.returnJson(false, "存储失败");
@@ -220,14 +198,20 @@ public class BlogController extends BaseController<Blog> {
     }
 
     /**
-     * 添加 md文件
+     * 添加、更新 md文件
      */
-    @RequestMapping("/addHtml")
+    @RequestMapping("/saveHtml")
     public JSONObject add(Integer id, String md) {
         Blog blog = blogService.getById(id);
         String sysyUrl = null;
         try {
-            sysyUrl = resourceService.upload(new ByteArrayInputStream(md.getBytes()), doResource(blog.getId(), blog.getTitle().concat(".md")));
+            sysyUrl = resourceService.upload(
+                    new ByteArrayInputStream(md.getBytes("utf-8")), doResource(blog.getId(), blog.getTitle().concat(".md")));
+            if (null != blog.getSysyUrl()) {
+                Resource r = new Resource();
+                r.setSysyUrl(blog.getSysyUrl());
+                resourceService.deleteSysFile(r);
+            }
         } catch (Exception e) {
             LOG.error("上传失败", e);
             return ResponseUtil.returnJson(false, "上传失败，发生异常");
@@ -242,6 +226,22 @@ public class BlogController extends BaseController<Blog> {
         }
     }
 
+    //获取md文本
+    @RequestMapping("/getMd/{id}")
+    public String getMd(@PathVariable Integer id) {
+        try {
+            Blog blog = blogService.getById(id);
+            String sysyUrl = blog.getSysyUrl();
+            String md = null;
+            if (null != sysyUrl) {
+                md = resourceService.dowloadTextFile(sysyUrl);
+            }
+            return md;
+        } catch (Exception e) {
+            LOG.error("文本下载失败，发生异常", e);
+        }
+        return null;
+    }
 
     private Resource doResource(Integer id, String fileName) {
         Resource r = new Resource();

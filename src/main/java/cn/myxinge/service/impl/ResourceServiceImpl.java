@@ -2,6 +2,7 @@ package cn.myxinge.service.impl;
 
 import cn.myxinge.dao.BlogDao;
 import cn.myxinge.dao.ResourceDao;
+import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.ResourceService;
 import cn.myxinge.utils.FastDFSClient;
@@ -110,8 +111,11 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
         //创建匹配器，即如何使用查询条件
         ExampleMatcher matcher = ExampleMatcher.matching() //构建对象
                 .withMatcher("blogid", ExampleMatcher.GenericPropertyMatchers.caseSensitive())
+                .withMatcher("state", ExampleMatcher.GenericPropertyMatchers.caseSensitive())
                 .withIgnorePaths("focus");
 
+        //只有正在使用的才可以删除
+        resource.setState(Resource.STATE_USE);
         Example<Resource> example = Example.of(resource, matcher);
         List<Resource> all = resourceDao.findAll(example);
 
@@ -152,6 +156,17 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
         if (i != 0) {
             return "delete faile";
         }
+
+        //数据库更新
+
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withMatcher("sysyUrl", ExampleMatcher.GenericPropertyMatchers.caseSensitive());
+
+        List<Resource> list = resourceDao.findAll(Example.of(r, matcher));
+
+        r = list.size() > 0 ? list.get(0) : null;
+        r.setState(Resource.STATE_UNUSE);
+        super.update(r);
         return "success";
     }
 
@@ -159,6 +174,12 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
     public void setBlogDao(ResourceDao resourceDao) {
         this.resourceDao = resourceDao;
         super.setJpaRepository(resourceDao);
+    }
+
+    @Override
+    public String dowloadTextFile(String sysPath) throws Exception {
+        FastDFSClient fastDFSClient = new FastDFSClient(confPath);
+        return new String(fastDFSClient.download_file(sysPath));
     }
 }
 

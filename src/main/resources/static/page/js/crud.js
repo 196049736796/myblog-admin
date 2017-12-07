@@ -1,5 +1,5 @@
 //提交的方法名称
-var method = "";
+var method = "saveWithoutHtml";
 var ty = "post";
 //静态传参需要的参数
 var listParam = "";
@@ -15,8 +15,7 @@ $(function () {
             text: '新增',
             iconCls: 'icon-add',
             handler: function () {
-                //设置保存按钮提交的方法为add
-                method = "addWithoutHtml";
+
                 $('#editForm').form('clear');            //更改过
                 //关闭编辑窗口
                 $('#editDlg').dialog('open');            //更改过
@@ -90,12 +89,11 @@ $(function () {
                             if (rtn.success) {
                                 var r = confirm("是否前往编辑？");
                                 if (r) {
-                                    location.href="/page/editor.html?id="+rtn.id;
-                                } else {
-                                    $('#editDlg').dialog('close');
-                                    //刷新表格
-                                    $('#grid').datagrid('reload');
+                                    window.open("/page/editor.html?id=" + rtn.id);
                                 }
+                                $('#editDlg').dialog('close');
+                                //刷新表格
+                                $('#grid').datagrid('reload');
                             }
                         });
                     }
@@ -199,9 +197,6 @@ function edit(id) {
 
     //清空表单内容
     $('#editForm').form('clear');
-
-    //设置保存按钮提交的方法为update
-    method = "update";
 
     ty = "post";
 

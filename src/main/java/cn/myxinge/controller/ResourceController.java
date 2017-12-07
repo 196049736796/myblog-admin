@@ -5,6 +5,8 @@ import cn.myxinge.service.MenuService;
 import cn.myxinge.service.ResourceService;
 import cn.myxinge.utils.ResponseUtil;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/resouce")
 public class ResourceController extends BaseController<Resource>{
+    private Logger LOG = LoggerFactory.getLogger(ResourceController.class);
     @Autowired
     private ResourceService resourceService;
     @Value("${baseUrl}")
@@ -60,6 +64,20 @@ public class ResourceController extends BaseController<Resource>{
         }
     }
 
+    @RequestMapping("/delete")
+    public JSONObject delete(Integer id) {
+        Resource r = resourceService.getById(id);
+        try {
+            String rtn = resourceService.deleteSysFile(r);
+            if("success".equals(rtn)){
+               return ResponseUtil.returnJson(true,"删除成功");
+            }
+        } catch (Exception e) {
+           LOG.error("删除失败，发现异常",e);
+            return ResponseUtil.returnJson(false,"删除失败,发现异常");
+        }
+        return ResponseUtil.returnJson(false,"删除失败");
+    }
 
     @Autowired
     public void setBlogService(ResourceService resourceService) {

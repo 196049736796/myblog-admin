@@ -53,12 +53,12 @@ public class BaseServiceImpl<T> implements BaseService<T> {
     /**条件查询*/
     @Override
     public Page<T> listOnWhere(T t, Integer page, Integer rows, Sort sort, Example ex) {
-        int firstResult = (page - 1) * rows;
+        int firstP = (page - 1);
         Pageable pageable = null;
-        if (null == sort) {
-            pageable = new PageRequest(firstResult, rows, sort);
+        if (null != sort) {
+            pageable = new PageRequest(firstP, rows, sort);
         } else {
-            pageable = new PageRequest(firstResult, rows);
+            pageable = new PageRequest(firstP, rows);
         }
 
         if (null == ex) {

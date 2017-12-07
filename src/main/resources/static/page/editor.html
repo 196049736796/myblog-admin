@@ -5,6 +5,8 @@
     <title>博客编辑</title>
     <link rel="stylesheet" href="css/style.css"/>
     <link rel="stylesheet" href="css/editormd.css"/>
+    <script type="text/javascript" src="ui/jquery.min.js"></script>
+    <script type="text/javascript" src="ui/jquery.serializejson.min.js"></script>
     <link rel="shortcut icon" href="https://pandao.github.io/editor.md/favicon.ico" type="image/x-icon"/>
 </head>
 <body>
@@ -17,14 +19,18 @@
     </div>
     <div id="test-editormd"></div>
 </div>
+<script src="js/Request.js"></script>
 <script src="js/jquery.min.js"></script>
 <script src="js/editormd.js"></script>
 <script type="text/javascript">
     var testEditor;
-
+    var id = Request().id;
     $(function () {
-
-        $.get('test.md', function (md) {
+        var url = "json/test.md";
+        if (!(undefined == id) && !(null == id)) {
+            var url = "/admin/blog/getMd/" + id;
+        }
+        $.get(url, function (md) {
             testEditor = editormd("test-editormd", {
                 width: "96%",
                 height: 740,
@@ -62,18 +68,28 @@
         });
 
         $("#get-md-btn").bind('click', function () {
-            $.ajax({
-                url: '/admin/blog/addHtml',
-                data: {"md": testEditor.getMarkdown(),"id": "102"},
-                type: "post",
-                success: function (rtn) {
-                    alert(rtn);
-                }
-            });
+            if (undefined == id || null == id) {
+                alert("注意，没有绑定博客ID上传后在博客页无法找到.");
+            }
+
+            var r = confirm("是否上传？");
+            if (r) {
+                $.ajax({
+                    url: '/admin/blog/saveHtml',
+                    data: {"md": testEditor.getMarkdown(), "id": id},
+                    type: "post",
+                    success: function (rtn) {
+                        var r = confirm(rtn.message+",是否退出？");
+                        if(r){
+                            window.close();
+                        }
+                    }
+                });
+            }
         });
 
         $("#get-html-btn").bind('click', function () {
-            alert(testEditor.getHTML());
+            $.messager.alert('提示', testEditor.getHTML(), "info");
         });
 
         $("#toc-menu-btn").click(function () {

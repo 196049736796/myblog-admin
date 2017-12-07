@@ -34,4 +34,7 @@ public interface ResourceService extends BaseService<Resource>{
      * @param r
      */
     String deleteSysFile(Resource r) throws Exception;
+
+    /**下载文本文件*/
+    String dowloadTextFile(String sysPath) throws Exception;
 }

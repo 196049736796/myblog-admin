@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
         mav.setViewName(DEFAULT_ERROR_VIEW);
 
         //写日志
-        LOG.error("\n\n-------------------------->出现异常：url = "+req.getRequestURL()+": " + e.getCause());
+        LOG.error("\n\n-------------------------->出现异常：url = "+req.getRequestURL()+": " + e);
 
         return mav;
     }

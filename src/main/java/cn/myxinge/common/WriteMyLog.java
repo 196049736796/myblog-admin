@@ -31,7 +31,7 @@ public class WriteMyLog {
      * 定义一个切入点
      */
     // @Pointcut("execution (* findById*(..))")
-    @Pointcut("execution(* cn.myxinge..*(..))")
+    @Pointcut("execution(* cn.myxinge.controller..*(..))")
     public void excudeService() {
     }
 
