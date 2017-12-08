@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -26,22 +27,30 @@ public class VisitController extends BaseController<VisitIp> {
     @Autowired
     private VisitIpService visitIpService;
 
-    @RequestMapping(value = "/save",method = {RequestMethod.POST})
+    @RequestMapping(value = "/save", method = {RequestMethod.POST})
     public JSONObject save(VisitIp visitIp) throws ParseException {
-        String rtb = super.add(visitIp);
-        if("1".equals(rtb)){
-            return ResponseUtil.returnJson(true,"success");
+        VisitIp vi = visitIpService.findByIP(visitIp);
+        if (null != vi) {
+            vi.setVisittime(new Date());
+            vi.setVisitNum(vi.getVisitNum() == null ? 1 : vi.getVisitNum() + 1);
+            super.update(vi);
+            return ResponseUtil.returnJson(true, "success");
         }
-        return ResponseUtil.returnJson(false,"failre");
+        visitIp.setVisitNum(1L);
+        String rtb = super.add(visitIp);
+        if ("1".equals(rtb)) {
+            return ResponseUtil.returnJson(true, "success");
+        }
+        return ResponseUtil.returnJson(false, "failre");
     }
 
-    @RequestMapping(value = "/list",method = {RequestMethod.GET,RequestMethod.POST})
-    public Map list(VisitIp visitIp,Integer page, Integer rows){
-        return super.list(visitIp,page,rows);
+    @RequestMapping(value = "/list", method = {RequestMethod.GET, RequestMethod.POST})
+    public Map list(VisitIp visitIp, Integer page, Integer rows) {
+        return super.list(visitIp, page, rows);
     }
 
     //跟据id删除 -- 带资源
-    @RequestMapping(value = "/delete",method = {RequestMethod.DELETE})
+    @RequestMapping(value = "/delete", method = {RequestMethod.DELETE})
     public JSONObject delete(Integer id) throws Exception {
         if (null == id) {
             return ResponseUtil.returnJson(false, "ID为空");
@@ -50,7 +59,7 @@ public class VisitController extends BaseController<VisitIp> {
         try {
             super.delete(id);
         } catch (Exception e) {
-            LOG.error("删除失败",e);
+            LOG.error("删除失败", e);
             return ResponseUtil.returnJson(false, "出现异常");
         }
 
@@ -58,7 +67,7 @@ public class VisitController extends BaseController<VisitIp> {
     }
 
     @Autowired
-    public void setBlogService( VisitIpService visitIpService) {
+    public void setBlogService(VisitIpService visitIpService) {
         this.visitIpService = visitIpService;
         super.setBaseService(visitIpService);
     }
@@ -67,4 +76,5 @@ public class VisitController extends BaseController<VisitIp> {
     public Sort getSort() {
         return new Sort(Sort.Direction.DESC, "visittime");
     }
+
 }

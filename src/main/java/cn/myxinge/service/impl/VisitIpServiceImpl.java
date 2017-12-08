@@ -19,12 +19,15 @@ import java.util.List;
 @Transactional
 public class VisitIpServiceImpl extends BaseServiceImpl<VisitIp> implements VisitIpService {
     private VisitIpDao visitIpDao;
+
     @Override
     public VisitIp findByIP(VisitIp visitIp) {
         ExampleMatcher ma = ExampleMatcher.matching().withMatcher("ip",
                 ExampleMatcher.GenericPropertyMatchers.caseSensitive())
                 .withIgnorePaths("focus");
-        Example<VisitIp> ex = Example.of(visitIp, ma);
+        VisitIp vi = new VisitIp();
+        vi.setIp(visitIp.getIp());
+        Example<VisitIp> ex = Example.of(vi, ma);
 
         List<VisitIp> all = visitIpDao.findAll(ex);
         return all.size() > 0 ? all.get(0) : null;

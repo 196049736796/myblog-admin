@@ -87,13 +87,15 @@ $(function () {
                     success: function (rtn) {
                         $.messager.alert('提示', rtn.message, 'info', function () {
                             if (rtn.success) {
-                                var r = confirm("是否前往编辑？");
-                                if (r) {
-                                    window.open("/page/editor.html?id=" + rtn.id);
-                                }
                                 $('#editDlg').dialog('close');
                                 //刷新表格
                                 $('#grid').datagrid('reload');
+
+                                $.messager.confirm("提示", "是否前往编辑？", function (yes) {
+                                    if (yes) {
+                                        window.open("/page/editor.html?id=" + rtn.id);
+                                    }
+                                });
                             }
                         });
                     }
@@ -114,7 +116,7 @@ $(function () {
         title: '资源上传',//窗口标题
         width: 480,//窗口宽度
         height: 450,
-        closed: true,//窗口是是否为关闭状态, true：表示关闭
+        closed: true,//窗口是是否为关闭状态, true：表示关
         modal: true,//模式窗口
         buttons: [{
             text: '保存',

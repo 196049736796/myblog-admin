@@ -69,8 +69,11 @@ public class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
-    public Long getCount(T t) {
-        return jpaRepository.count();
+    public Long getCount(Example ex) {
+        if(null == ex){
+            return jpaRepository.count();
+        }
+        return jpaRepository.count(ex);
     }
 
     @Override

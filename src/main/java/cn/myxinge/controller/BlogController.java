@@ -65,7 +65,7 @@ public class BlogController extends BaseController<Blog> {
         blog.setState(Blog.STATE_ONLINE);
         Example<Blog> ex = Example.of(blog, ma);
         Page<Blog> data = blogService.listOnWhere(t, page, rows, getSort(), ex);
-        long total = blogService.getCount(null);
+        long total = blogService.getCount(ex);
         Map<String, Object> mapData = new HashMap<String, Object>();
         mapData.put("total", total);
         mapData.put("rows", data.getContent());
