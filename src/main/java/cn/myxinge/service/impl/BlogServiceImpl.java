@@ -43,6 +43,11 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
         return list.size() > 0 ? list.get(0) : null;
     }
 
+    @Override
+    public void update(Blog blog) {
+        blog.setUpdatetime(new Date());
+        super.update(blog);
+    }
 
     @Autowired
     public void setBlogDao(BlogDao blogDao) {
