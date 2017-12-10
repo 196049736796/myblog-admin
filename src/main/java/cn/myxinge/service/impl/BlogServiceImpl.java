@@ -9,6 +9,7 @@ import cn.myxinge.utils.FastDFSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -17,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.*;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by chenxinghua on 2017/11/9.
@@ -31,6 +34,7 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
     private ResourceDao resourceDao;
 
     @Override
+//    @Cacheable
     public Blog getBlogByUrl(String url) {
         Blog b = new Blog();
         b.setUrl(url);
@@ -47,6 +51,15 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
     public void update(Blog blog) {
         blog.setUpdatetime(new Date());
         super.update(blog);
+    }
+
+    @Override
+    public Map<String, Blog> findPreAndNext(Blog blog) {
+        //HashMap即是value为null也不会抛出异常
+        Map<String,Blog> map = new HashMap<String,Blog>();
+        map.put("preBlog", blogDao.preBlog(blog.getCreatetime()));
+        map.put("nextBlog", blogDao.nextBlog(blog.getCreatetime()));
+        return map;
     }
 
     @Autowired

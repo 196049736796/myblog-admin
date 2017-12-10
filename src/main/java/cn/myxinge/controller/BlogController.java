@@ -81,9 +81,14 @@ public class BlogController extends BaseController<Blog> {
      * @return
      */
     @RequestMapping(value = "/{url}", method = {RequestMethod.GET})
-    public Blog showBlog(@PathVariable String url) {
+    public JSONObject showBlog(@PathVariable String url) {
         Blog blog = blogService.getBlogByUrl(url);
-        return blog;
+        //顺带把上一篇和下一篇带出去
+        Map<String, Blog> map = blogService.findPreAndNext(blog);
+        Map<String, Object> jsonMap = new HashMap<String, Object>();
+        jsonMap.put("curBlog", blog);
+        jsonMap.put("preAndNext", map);
+        return new JSONObject(jsonMap);
     }
 
 
@@ -242,6 +247,7 @@ public class BlogController extends BaseController<Blog> {
         }
         return null;
     }
+
 
     private Resource doResource(Integer id, String fileName) {
         Resource r = new Resource();
