@@ -248,6 +248,11 @@ public class BlogController extends BaseController<Blog> {
         return null;
     }
 
+    //归档实现：当前年份，月份 - 2017 年之间的所有博客信息，使用Map层次封装
+    @RequestMapping("/listByArchives")
+    public Map<String,List<Blog>> listByArchives(){
+        return blogService.listByArchives();
+    }
 
     private Resource doResource(Integer id, String fileName) {
         Resource r = new Resource();

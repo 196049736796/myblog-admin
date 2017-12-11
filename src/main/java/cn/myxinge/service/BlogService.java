@@ -1,8 +1,6 @@
 package cn.myxinge.service;
 
 import cn.myxinge.entity.Blog;
-import org.springframework.data.domain.Page;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +12,8 @@ public interface BlogService extends BaseService<Blog>{
     Blog getBlogByUrl(String url);
 
     Map<String,Blog> findPreAndNext(Blog blog);
+
+    Map<String, List<Blog>> listByArchives();
 }
 
 
