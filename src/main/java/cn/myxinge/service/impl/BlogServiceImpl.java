@@ -61,7 +61,6 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
         Map<String,List<Blog>> rtn = new HashMap<>();
         int year = all.get(0).getCreatetime().getYear();
         int curYear = new Date().getYear();
-
         for(;year <= curYear;year++){
             List<Blog> yearData = yearData(year, all);
             rtn.put(String.valueOf(year),yearData);
