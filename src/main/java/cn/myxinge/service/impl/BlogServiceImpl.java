@@ -2,6 +2,7 @@ package cn.myxinge.service.impl;
 
 import cn.myxinge.dao.BlogDao;
 import cn.myxinge.dao.ResourceDao;
+import cn.myxinge.entity.Archives;
 import cn.myxinge.entity.Blog;
 import cn.myxinge.service.BlogService;
 import org.slf4j.Logger;
@@ -54,19 +55,48 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
     }
 
     @Override
-    public Map<String, List<Blog>> listByArchives() {
+    public List<Archives> listByArchives() {
         List<Blog> all = listAll();//所有数据，上线的
 
-        //todo
-        Map<String,List<Blog>> rtn = new HashMap<>();
-        int year = all.get(0).getCreatetime().getYear();
-        int curYear = new Date().getYear();
-        for(;year <= curYear;year++){
-            List<Blog> yearData = yearData(year, all);
-            rtn.put(String.valueOf(year),yearData);
+        if (null == all || all.size() < 1) {
+            return null;
         }
 
-        return rtn;
+        List<Archives> archivesList = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(all.get(all.size() - 1).getCreatetime());
+        int earlyYear = calendar.get(Calendar.YEAR);
+        calendar.setTime(new Date());
+        int curYear = calendar.get(Calendar.YEAR);
+
+        Archives archive = null;
+        List<Map<String, List<Blog>>> datas = null;
+        Map<String, List<Blog>> monthData = null;
+        List<Blog> list = null;
+        for (; earlyYear <= curYear; earlyYear++) {
+            archive = new Archives();
+            datas = new ArrayList<>();
+            archive.setYear(earlyYear + "");
+
+            for (int i = 12; i >= 1; i--) {
+                list = new ArrayList<>();
+                monthData = new HashMap<>();
+                for (Blog b : all) {
+                    calendar.setTime(b.getCreatetime());
+                    if (calendar.get(Calendar.MONTH) + 1 == i) {
+                        list.add(b);
+                    }
+                }
+
+                if (list.size() > 0) {
+                    monthData.put(i + "", list);
+                    datas.add(monthData);
+                }
+            }
+            archive.setDatas(datas);
+            archivesList.add(archive);
+        }
+        return archivesList;
     }
 
 
@@ -75,25 +105,13 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
         Blog b = new Blog();
         b.setState(Blog.STATE_ONLINE);
 
-        Sort sort = new Sort(Sort.Direction.ASC, "createtime");
+        Sort sort = new Sort(Sort.Direction.DESC, "createtime");
 
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withMatcher("state", ExampleMatcher.GenericPropertyMatchers.caseSensitive());
 
-        List<Blog> list = blogDao.findAll(Example.of(b, matcher),sort);
+        List<Blog> list = blogDao.findAll(Example.of(b, matcher), sort);
         return list;
-    }
-
-    private List<Blog> yearData(int year,List<Blog> blogs){
-        List<Blog> yearB = new ArrayList<>();
-        for(Blog b: blogs){
-            if(b.getCreatetime().getYear() == year){
-                yearB.add(b);
-            }
-        }
-        //todo 循环月份
-
-        return null;
     }
 
     @Autowired

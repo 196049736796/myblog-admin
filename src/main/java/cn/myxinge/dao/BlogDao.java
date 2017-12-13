@@ -18,6 +18,4 @@ public interface BlogDao extends JpaRepository<Blog, Integer> {
     @Query(value = "select * from blog b where  b.createtime> ? limit 1", nativeQuery = true)
     public Blog nextBlog(Date curBlogCreateTime);
 
-    @Query(value = "SELECT * from blog GROUP BY MONTH(createTime) ORDER BY createTime DESC;", nativeQuery = true)
-    public List<Blog> archives();
 }

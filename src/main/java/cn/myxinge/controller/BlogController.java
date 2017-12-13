@@ -1,5 +1,6 @@
 package cn.myxinge.controller;
 
+import cn.myxinge.entity.Archives;
 import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.BaseService;
@@ -250,7 +251,7 @@ public class BlogController extends BaseController<Blog> {
 
     //归档实现：当前年份，月份 - 2017 年之间的所有博客信息，使用Map层次封装
     @RequestMapping("/listByArchives")
-    public Map<String,List<Blog>> listByArchives(){
+    public List<Archives> listByArchives(){
         return blogService.listByArchives();
     }
 

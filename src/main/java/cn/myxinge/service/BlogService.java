@@ -1,5 +1,6 @@
 package cn.myxinge.service;
 
+import cn.myxinge.entity.Archives;
 import cn.myxinge.entity.Blog;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface BlogService extends BaseService<Blog>{
 
     Map<String,Blog> findPreAndNext(Blog blog);
 
-    Map<String, List<Blog>> listByArchives();
+    List<Archives> listByArchives();
 }
 
 
