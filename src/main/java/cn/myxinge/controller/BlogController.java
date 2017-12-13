@@ -1,19 +1,12 @@
 package cn.myxinge.controller;
 
-import cn.myxinge.entity.Archives;
 import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
-import cn.myxinge.service.BaseService;
 import cn.myxinge.service.BlogService;
 import cn.myxinge.service.ResourceService;
-import cn.myxinge.utils.FastDFSClient;
-import cn.myxinge.utils.FileUtil;
 import cn.myxinge.utils.ResponseUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPObject;
 import com.alibaba.fastjson.JSONPath;
-import org.hibernate.criterion.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +15,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by chenxinghua on 2017/11/9.
@@ -251,7 +241,7 @@ public class BlogController extends BaseController<Blog> {
 
     //归档实现：当前年份，月份 - 2017 年之间的所有博客信息，使用Map层次封装
     @RequestMapping("/listByArchives")
-    public List<Archives> listByArchives(){
+    public List listByArchives(){
         return blogService.listByArchives();
     }
 

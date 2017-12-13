@@ -2,7 +2,6 @@ package cn.myxinge.service.impl;
 
 import cn.myxinge.dao.BlogDao;
 import cn.myxinge.dao.ResourceDao;
-import cn.myxinge.entity.Archives;
 import cn.myxinge.entity.Blog;
 import cn.myxinge.service.BlogService;
 import org.slf4j.Logger;
@@ -55,48 +54,39 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
     }
 
     @Override
-    public List<Archives> listByArchives() {
+    public List listByArchives() {
         List<Blog> all = listAll();//所有数据，上线的
 
         if (null == all || all.size() < 1) {
             return null;
         }
 
-        List<Archives> archivesList = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(all.get(0).getCreatetime());
+        int y = calendar.get(Calendar.YEAR);
+        int m = calendar.get(Calendar.MONTH);
         calendar.setTime(all.get(all.size() - 1).getCreatetime());
-        int earlyYear = calendar.get(Calendar.YEAR);
-        calendar.setTime(new Date());
-        int curYear = calendar.get(Calendar.YEAR);
+        int _y = calendar.get(Calendar.YEAR);
+        int _m = calendar.get(Calendar.MONTH);
 
-        Archives archive = null;
-        List<Map<String, List<Blog>>> datas = null;
-        Map<String, List<Blog>> monthData = null;
-        List<Blog> list = null;
-        for (; earlyYear <= curYear; earlyYear++) {
-            archive = new Archives();
-            datas = new ArrayList<>();
-            archive.setYear(earlyYear + "");
+//        for (; _y <= y; _y++) {
+//            blogByMonth(_y,);
+//        }
 
-            for (int i = 12; i >= 1; i--) {
-                list = new ArrayList<>();
-                monthData = new HashMap<>();
-                for (Blog b : all) {
-                    calendar.setTime(b.getCreatetime());
-                    if (calendar.get(Calendar.MONTH) + 1 == i) {
-                        list.add(b);
-                    }
-                }
+        return all;
+    }
 
-                if (list.size() > 0) {
-                    monthData.put(i + "", list);
-                    datas.add(monthData);
-                }
+
+    private List<Blog> blogByMonth(int year, int mongth, List<Blog> blogs) {
+        List<Blog> rtn = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        for (Blog b : blogs) {
+            calendar.setTime(b.getCreatetime());
+            if (year == calendar.get(Calendar.YEAR) && mongth == calendar.get(Calendar.MONTH)) {
+                rtn.add(b);
             }
-            archive.setDatas(datas);
-            archivesList.add(archive);
         }
-        return archivesList;
+        return rtn;
     }
 
 
