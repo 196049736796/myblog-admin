@@ -61,19 +61,26 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
             return null;
         }
 
+        Map<String, List<Blog>> map = null;
+        List<Map<String, List<Blog>>> list = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(all.get(0).getCreatetime());
         int y = calendar.get(Calendar.YEAR);
-        int m = calendar.get(Calendar.MONTH);
         calendar.setTime(all.get(all.size() - 1).getCreatetime());
         int _y = calendar.get(Calendar.YEAR);
-        int _m = calendar.get(Calendar.MONTH);
 
-//        for (; _y <= y; _y++) {
-//            blogByMonth(_y,);
-//        }
+        for (; y >= _y; y--) {
+            for (int i = 12; i >= 1; i--) {
+                List<Blog> l = blogByMonth(y, i, all);
+                if (null != l && l.size() > 0) {
+                    map = new HashMap<>();
+                    map.put(y + "-" + i, l);
+                    list.add(map);
+                }
+            }
+        }
 
-        return all;
+        return list;
     }
 
 
@@ -82,7 +89,7 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
         Calendar calendar = Calendar.getInstance();
         for (Blog b : blogs) {
             calendar.setTime(b.getCreatetime());
-            if (year == calendar.get(Calendar.YEAR) && mongth == calendar.get(Calendar.MONTH)) {
+            if (year == calendar.get(Calendar.YEAR) && mongth == calendar.get(Calendar.MONTH) + 1) {
                 rtn.add(b);
             }
         }

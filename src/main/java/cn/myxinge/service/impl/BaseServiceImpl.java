@@ -4,6 +4,7 @@ import cn.myxinge.dao.*;
 import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.BaseService;
+import cn.myxinge.service.jms.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -110,6 +111,7 @@ public class BaseServiceImpl<T> implements BaseService<T> {
         System.out.println(jpaRepository);
         this.jpaRepository = jpaRepository;
     }
+
 }
 
 
