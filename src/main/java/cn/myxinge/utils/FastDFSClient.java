@@ -4,6 +4,8 @@ package cn.myxinge.utils;
 import org.csource.common.MyException;
 import org.csource.common.NameValuePair;
 import org.csource.fastdfs.*;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -18,12 +20,17 @@ public class FastDFSClient {
     private TrackerServer trackerServer = null;
     private StorageServer storageServer = null;
     private StorageClient1 storageClient = null;
+    /**
+     * fdfs初始化文件路径
+     **/
+    private Resource re = new ClassPathResource("client.conf");
 
-    public FastDFSClient(String conf) throws Exception {
-        if (conf.contains("classpath:")) {
+    public FastDFSClient() throws Exception {
+        /*if (conf.contains("classpath:")) {
             conf = conf.replace("classpath:", this.getClass().getResource("/").getPath());
-        }
-        ClientGlobal.init(conf);
+        }*/
+        System.out.println(re.getFile().getAbsolutePath());
+        ClientGlobal.init(re.getFile().getAbsolutePath());
         trackerClient = new TrackerClient();
         trackerServer = trackerClient.getConnection();
         storageServer = null;

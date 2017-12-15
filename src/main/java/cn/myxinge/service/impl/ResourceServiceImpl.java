@@ -1,8 +1,6 @@
 package cn.myxinge.service.impl;
 
-import cn.myxinge.dao.BlogDao;
 import cn.myxinge.dao.ResourceDao;
-import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.ResourceService;
 import cn.myxinge.utils.FastDFSClient;
@@ -29,8 +27,6 @@ import java.util.List;
 public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements ResourceService {
 
     private Logger LOG = LoggerFactory.getLogger(ResourceServiceImpl.class);
-    @Value("${fastdfs.trackServer.conf.path}")
-    private String confPath;
     private ResourceDao resourceDao;
 
 
@@ -62,7 +58,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
 
             //上传
             FastDFSClient fastDFSClient = null;
-            fastDFSClient = new FastDFSClient(rootPath + "static/conf/client.conf");
+            fastDFSClient = new FastDFSClient();
             int dian = resource.getFilename().indexOf(".");
             String sysyUrl = fastDFSClient.uploadFile(filePath + resource.getFilename(),
                     resource.getFilename().substring(dian + 1));
@@ -102,7 +98,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
 
     @Override
     public String upload(String fileName, String suffix) throws Exception {
-        FastDFSClient fastDFSClient = new FastDFSClient(confPath);
+        FastDFSClient fastDFSClient = new FastDFSClient();
         return fastDFSClient.uploadFile(fileName, suffix);
     }
 
@@ -121,7 +117,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
 
         //删除失败集合
         List<Resource> delFailList = new ArrayList<>();
-        FastDFSClient fastDFSClient = new FastDFSClient(confPath);
+        FastDFSClient fastDFSClient = new FastDFSClient();
 
         for (Resource r : all) {
             String sysyUrl = r.getSysyUrl();
@@ -150,7 +146,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
     @Override
     public String deleteSysFile(Resource r) throws Exception {
 
-        FastDFSClient fastDFSClient = new FastDFSClient(confPath);
+        FastDFSClient fastDFSClient = new FastDFSClient();
         int i = fastDFSClient.deleteFile(r.getSysyUrl());
 
         if (i != 0) {
@@ -178,7 +174,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
 
     @Override
     public String dowloadTextFile(String sysPath) throws Exception {
-        FastDFSClient fastDFSClient = new FastDFSClient(confPath);
+        FastDFSClient fastDFSClient = new FastDFSClient();
         return new String(fastDFSClient.download_file(sysPath));
     }
 }
