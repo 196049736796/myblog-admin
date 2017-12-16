@@ -67,7 +67,7 @@ $(function () {
     $('#editDlg').dialog({
         title: '编辑',//窗口标题
         width: 480,//窗口宽度
-        height: 450,
+        height: 400,
         closed: true,//窗口是是否为关闭状态, true：表示关闭
         modal: true,//模式窗口
         buttons: [{
@@ -210,5 +210,9 @@ function edit(id) {
 function uploadRe(blogId) {
     $("#ReblogId").val(blogId);
     $('#uploadReDiv').dialog("open");
+}
+
+function openUpload(blogId) {
+    window.open("/page/uploadImg.html?id=" + blogId);
 }
 

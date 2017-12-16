@@ -4,6 +4,8 @@ import cn.myxinge.entity.Blog;
 import cn.myxinge.entity.Resource;
 import cn.myxinge.service.BlogService;
 import cn.myxinge.service.ResourceService;
+import cn.myxinge.utils.BASE64DecUtil;
+import cn.myxinge.utils.FileUtil;
 import cn.myxinge.utils.ResponseUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
@@ -150,7 +152,7 @@ public class BlogController extends BaseController<Blog> {
      * 添加/修改
      */
     @RequestMapping("/saveWithoutHtml")
-    public JSONObject add(Blog blog, MultipartFile mainImg) {
+    public JSONObject saveWithoutHtml(Blog blog) {
         if (null != blog.getId()) {
             //此时标识数据更新，而不是添加
             Blog syBlog = blogService.getById(blog.getId());
@@ -158,39 +160,62 @@ public class BlogController extends BaseController<Blog> {
             blog.setSysyUrl(syBlog.getSysyUrl());
             blog.setMainImgUrl(syBlog.getMainImgUrl());
         }
-        //处理md文件上传逻辑
         blog.setState(Blog.STATE_OFFLINE);
         blog.setAuth("Xingchen");
         String rtn = super.add(blog);   //注：虽然方法名叫做add,但当数据有id时，表明是更新，执行的是update
         if ("1".equals(rtn)) {
-            try {
-                if (null != mainImg && !StringUtils.isEmpty(mainImg.getOriginalFilename())) {
-                    String imgUrl = resourceService.upload(mainImg.getInputStream(), doResource(blog.getId(), mainImg.getOriginalFilename()));
-                    if (!"-1".equals(imgUrl)) {
-                        //删除原有的img
-                        if (null != blog.getMainImgUrl()) {
-                            Resource r = new Resource();
-                            r.setSysyUrl(blog.getMainImgUrl());
-                            resourceService.deleteSysFile(r);
-                        }
-                        blog.setMainImgUrl(imgUrl);
-                        super.update(blog);
-                    } else {
-                        return ResponseUtil.returnJson(false, "上传失败");
-                    }
-                }
-                JSONObject json = ResponseUtil.returnJson(true, "保存成功");
-                Object eval = JSONPath.eval(json, "$.success");
-                JSONPath.set(json, "$.id", blog.getId());
-                return json;
-
-            } catch (Exception e) {
-                LOG.error("上传或删除源文件·失败", e);
-                return ResponseUtil.returnJson(false, "上传或删除源文件·失败，发生异常");
-            }
+            JSONObject json = ResponseUtil.returnJson(true, "保存成功");
+            Object eval = JSONPath.eval(json, "$.success");
+            JSONPath.set(json, "$.id", blog.getId());
+            return json;
         } else {
             return ResponseUtil.returnJson(false, "存储失败");
         }
+    }
+
+    @RequestMapping("/uploadImg")
+    public JSONObject uploadImg(String imgData, Integer id) throws Exception {
+        if (null == id) {
+            return ResponseUtil.returnJson(false, "ID为空");
+        }
+        if (StringUtils.isEmpty(imgData)) {
+            return ResponseUtil.returnJson(false, "图片信息为空");
+        }
+
+        Blog byId = blogService.getById(id);
+        if (null == byId) {
+            return ResponseUtil.returnJson(false, "博客为空");
+        } else {
+            if (null != byId.getMainImgUrl()) {
+                //删除原有的
+                Resource resource = new Resource();
+                resource.setSysyUrl(byId.getMainImgUrl());
+                resourceService.deleteSysFile(resource);
+            }
+        }
+
+        String rootPath = this.getClass().getResource("/").getPath();
+        File file = new File(rootPath + "static/temp/");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        String fileName = FileUtil.uuidName(".jpg");
+        boolean b = BASE64DecUtil.generateImage(imgData, rootPath + "static/temp/" + fileName);
+        if (b) {
+            Resource resource = new Resource();
+            resource.setBlogid(id);
+            resource.setFilename(fileName);
+            String upload = resourceService.upload(new FileInputStream(rootPath + "static/temp/" +fileName), resource);
+
+            if (!"-1".equals(upload)) {
+                byId.setMainImgUrl(upload);
+                blogService.update(byId);
+                return ResponseUtil.returnJson(false, "上传成功");
+            }
+        } else {
+            return ResponseUtil.returnJson(false, "图片解析失败");
+        }
+        return ResponseUtil.returnJson(false, "上传失败");
     }
 
     /**
@@ -216,7 +241,7 @@ public class BlogController extends BaseController<Blog> {
             blog.setSysyUrl(sysyUrl);
             blog.setCreatetime(blog.getCreatetime() == null ? new Date() : blog.getCreatetime());
             super.update(blog);
-            return ResponseUtil.returnJson(false, "上传成功");
+            return ResponseUtil.returnJson(true, "上传成功");
         } else {
             return ResponseUtil.returnJson(false, "上传失败");
         }
@@ -241,7 +266,7 @@ public class BlogController extends BaseController<Blog> {
 
     //归档实现：当前年份，月份 - 2017 年之间的所有博客信息，使用Map层次封装
     @RequestMapping("/listByArchives")
-    public List listByArchives(){
+    public List listByArchives() {
         return blogService.listByArchives();
     }
 

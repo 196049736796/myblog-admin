@@ -58,7 +58,7 @@
             {field: 'auth', title: '作者', width: 100},
 
             {
-                field: '-', title: '操作', width: 200,
+                field: '-', title: '操作', width: 250,
                 formatter: function (value, row, index) {
                     var oper = "<a href=\"http://www.myxinge.cn/blog/" + row.url + "\" target='_blank'>预览</a>";
                     if (row.state == 0) {
@@ -72,6 +72,7 @@
                     }
                     oper += '<a href="javascript:void(0)" onclick="edit(' + row.id + ')">编辑</a>';
                     oper += '<a href="javascript:void(0)" style="color:red" onclick="del(' + row.id + ')">删除</a>';
+                    oper += '<a href="javascript:void(0)" onclick="openUpload(' + row.id + ')">封面上传</a>';
                     return oper;
                 }
             }
@@ -151,10 +152,10 @@
                 <td>签名</td>
                 <td><input style="width: 100%" name="auth"></td>
             </tr>
-            <tr>
+            <!--<tr>
                 <td>大图文件</td>
                 <td><input style="width: 100%" type="file" name="mainImg"></td>
-            </tr>
+            </tr>-->
         </table>
     </form>
 </div>
