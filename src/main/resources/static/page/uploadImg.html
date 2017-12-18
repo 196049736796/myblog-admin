@@ -140,8 +140,11 @@
             dataType: "json",
             type: "post",
             success: function (rtn) {
-                if (!rtn.success) {
-                    alert(rtn.message);
+                if (rtn.success) {
+                    var b = confirm(rtn.message+"，是否关闭？");
+                    if(b){
+                        window.close();
+                    }
                 }
             }
         });

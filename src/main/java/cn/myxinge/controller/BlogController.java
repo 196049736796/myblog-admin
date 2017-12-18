@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import sun.rmi.runtime.Log;
 
 import java.io.*;
 import java.util.*;
@@ -182,6 +183,8 @@ public class BlogController extends BaseController<Blog> {
             return ResponseUtil.returnJson(false, "图片信息为空");
         }
 
+        imgData = imgData.replace("data:image/jpeg;base64,", "");
+
         Blog byId = blogService.getById(id);
         if (null == byId) {
             return ResponseUtil.returnJson(false, "博客为空");
@@ -200,22 +203,41 @@ public class BlogController extends BaseController<Blog> {
             file.mkdirs();
         }
         String fileName = FileUtil.uuidName(".jpg");
-        boolean b = BASE64DecUtil.generateImage(imgData, rootPath + "static/temp/" + fileName);
-        if (b) {
-            Resource resource = new Resource();
-            resource.setBlogid(id);
-            resource.setFilename(fileName);
-            String upload = resourceService.upload(new FileInputStream(rootPath + "static/temp/" +fileName), resource);
+        try {
+            boolean b = BASE64DecUtil.generateImage(imgData, rootPath + "static/temp/" + fileName);
+            if (b) {
+                String upload = resourceService.upload(rootPath + "static/temp/" + fileName, "jpg");
+                Resource resource = new Resource();
 
-            if (!"-1".equals(upload)) {
-                byId.setMainImgUrl(upload);
-                blogService.update(byId);
-                return ResponseUtil.returnJson(false, "上传成功");
+                //存储资源表
+                resource.setSuffix("jpg");
+                resource.setDescription(byId.getTitle() + " - 封面图片文件");
+                resource.setSysyUrl(upload);
+                resource.setState(Resource.STATE_USE);
+                resource.setCreatetime(new Date());
+                resource.setUrl("/");
+                resource.setBlogid(id);
+                resource.setFilename(fileName);
+                resourceService.add(resource);
+
+                if (!"-1".equals(upload)) {
+                    byId.setMainImgUrl(upload);
+                    blogService.update(byId);
+                    return ResponseUtil.returnJson(true, "上传成功");
+                }
+            } else {
+                return ResponseUtil.returnJson(false, "图片解析失败");
             }
-        } else {
-            return ResponseUtil.returnJson(false, "图片解析失败");
+        } catch (Exception e) {
+            LOG.error("上传失败，发生异常", e);
+        } finally {
+            //删除临时文件
+            File _file = new File(rootPath + "static/temp/" + fileName);
+            if (file != null) {
+                file.delete();
+            }
         }
-        return ResponseUtil.returnJson(false, "上传失败");
+        return ResponseUtil.returnJson(false, "上传失败，发生异常");
     }
 
     /**

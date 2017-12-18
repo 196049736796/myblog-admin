@@ -42,15 +42,22 @@ public class ResourceController extends BaseController<Resource>{
     }
 
     @RequestMapping("/uploadRe")
-    public JSONObject uploadRe2(MultipartFile image_file) throws IOException {
+    public JSONObject uploadRe2(Integer blogId,MultipartFile image_file) throws IOException {
+
+        Map rtn = new HashMap();
+        if(blogId == null){
+            rtn.put("success", -1);
+            rtn.put("url", null);
+            rtn.put("message", "博客未知");
+            return new JSONObject(rtn);
+        }
 
         Resource resource = new Resource();
-        resource.setBlogid(-1);
-        resource.setUrl("-");
+        resource.setBlogid(blogId);
+        resource.setUrl("/");
         resource.setFilename(image_file.getOriginalFilename());
 
         String sysurl = resourceService.upload(image_file.getInputStream(), resource);
-        Map rtn = new HashMap();
         if ("-1".equals(sysurl)) {
             rtn.put("success", -1);
             rtn.put("url", null);

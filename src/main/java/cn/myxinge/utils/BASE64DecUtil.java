@@ -17,29 +17,28 @@ public class BASE64DecUtil {
      * @Author:
      * @CreateTime:
      */
-    public static boolean generateImage(String imgStr, String path) {
+    public static boolean generateImage(String imgStr, String path) throws FileNotFoundException {
 
         if (imgStr == null) {
             return false;
         }
         BASE64Decoder decoder = new BASE64Decoder();
+        FileOutputStream write = new FileOutputStream(new File(path));
         try {
-            // 解密
-            byte[] b = decoder.decodeBuffer(imgStr);
-            // 处理数据
-            for (int i = 0; i < b.length; ++i) {
-                if (b[i] < 0) {
-                    b[i] += 256;
-                }
-            }
-            OutputStream out = new FileOutputStream(path);
-            out.write(b);
-            out.flush();
-            out.close();
+            byte[] decoderBytes = decoder.decodeBuffer(imgStr);
+            write.write(decoderBytes);
+            write.flush();
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                write.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        return false;
     }
 
     /**

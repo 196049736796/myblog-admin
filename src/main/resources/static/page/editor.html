@@ -60,7 +60,7 @@
                 //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
                 imageUpload: true,
                 imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp", "png"],
-                imageUploadURL: "/admin/resouce/uploadRe",
+                imageUploadURL: "/admin/resouce/uploadRe?blogId=" + id,
                 onload: function () {
                     console.log('onload', this);
                 }
@@ -79,8 +79,8 @@
                     data: {"md": testEditor.getMarkdown(), "id": id},
                     type: "post",
                     success: function (rtn) {
-                        var r = confirm(rtn.message+",是否退出？");
-                        if(r){
+                        var r = confirm(rtn.message + ",是否退出？");
+                        if (r) {
                             window.close();
                         }
                     }
