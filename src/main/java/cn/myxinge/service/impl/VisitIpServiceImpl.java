@@ -2,6 +2,7 @@ package cn.myxinge.service.impl;
 
 import cn.myxinge.dao.ResourceDao;
 import cn.myxinge.dao.VisitIpDao;
+import cn.myxinge.entity.Constants;
 import cn.myxinge.entity.VisitIp;
 import cn.myxinge.service.VisitIpService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,12 @@ public class VisitIpServiceImpl extends BaseServiceImpl<VisitIp> implements Visi
 
         List<VisitIp> all = visitIpDao.findAll(ex);
         return all.size() > 0 ? all.get(0) : null;
+    }
+
+    @Override
+    public String ipSave(VisitIp visitIp) {
+        visitIpDao.save(visitIp);
+        return Constants.STATE_SUCCESS;
     }
 
     @Autowired

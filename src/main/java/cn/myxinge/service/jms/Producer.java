@@ -19,5 +19,4 @@ public class Producer {
     public void sendMessage(Destination destination, final String message) {
         jmsTemplate.convertAndSend(destination, message);
     }
-
 }

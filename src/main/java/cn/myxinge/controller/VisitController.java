@@ -37,7 +37,7 @@ public class VisitController extends BaseController<VisitIp> {
             return ResponseUtil.returnJson(true, "success");
         }
         visitIp.setVisitNum(1L);
-        String rtb = super.add(visitIp);
+        String rtb = visitIpService.ipSave(visitIp);
         if ("1".equals(rtb)) {
             return ResponseUtil.returnJson(true, "success");
         }
