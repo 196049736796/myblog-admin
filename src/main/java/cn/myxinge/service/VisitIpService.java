@@ -11,4 +11,5 @@ import org.springframework.data.domain.Page;
 public interface VisitIpService extends BaseService<VisitIp> {
     VisitIp findByIP(VisitIp visitIps);
     String ipSave(VisitIp visitIp);
+    void ipUpdate(VisitIp vi);
 }

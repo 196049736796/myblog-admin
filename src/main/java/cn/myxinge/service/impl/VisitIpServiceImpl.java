@@ -40,6 +40,11 @@ public class VisitIpServiceImpl extends BaseServiceImpl<VisitIp> implements Visi
         return Constants.STATE_SUCCESS;
     }
 
+    @Override
+    public void ipUpdate(VisitIp vi) {
+        visitIpDao.save(vi);
+    }
+
     @Autowired
     public void setBlogDao(VisitIpDao visitIpDao) {
         this.visitIpDao = visitIpDao;

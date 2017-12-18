@@ -33,7 +33,7 @@ public class VisitController extends BaseController<VisitIp> {
         if (null != vi) {
             vi.setVisittime(new Date());
             vi.setVisitNum(vi.getVisitNum() == null ? 1 : vi.getVisitNum() + 1);
-            super.update(vi);
+            visitIpService.ipUpdate(vi);
             return ResponseUtil.returnJson(true, "success");
         }
         visitIp.setVisitNum(1L);
