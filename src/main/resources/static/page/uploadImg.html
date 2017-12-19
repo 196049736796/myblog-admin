@@ -58,8 +58,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div id="view" style="width:400px;height:245px;"
-                                                 title="请上传 400*245 的封面图片"></div>
+                                            <div id="view" style="width:400px;height:360px;"
+                                                 title="请上传 400*360 的封面图片"></div>
                                             <div style="height:10px;"></div>
                                             <div class=""
                                                  style="width:200px;height:32px;border-radius: 4px;background-color:#ff8a00;color: #FFFFFF;font-size: 14px;text-align:center;line-height:32px;outline:none;margin-left:37px;position:relative;">
@@ -97,8 +97,8 @@
     //上传封面
     //document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
     var clipArea = new bjj.PhotoClip("#clipArea", {
-        size: [400, 245],// 截取框的宽和高组成的数组。默认值为[260,260]
-        outputSize: [400, 245], // 输出图像的宽和高组成的数组。默认值为[0,0]，表示输出图像原始大小
+        size: [400, 360],// 截取框的宽和高组成的数组。默认值为[260,260]
+        outputSize: [0, 0], // 输出图像的宽和高组成的数组。默认值为[0,0]，表示输出图像原始大小
         //outputType: "jpg", // 指定输出图片的类型，可选 "jpg" 和 "png" 两种种类型，默认为 "jpg"
         file: "#file", // 上传图片的<input type="file">控件的选择器或者DOM对象
         view: "#view", // 显示截取后图像的容器的选择器或者DOM对象
