@@ -136,7 +136,18 @@ public class AuthController extends BaseController<User> {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    javaMailSender.send(finalMessage);
+                    try {
+                        javaMailSender.send(finalMessage);
+                    } catch (Exception e) {
+                        LOG.error("系统错误,邮件发送失败，发生异常", e);
+                        //将用户信息置为不可用
+                        user.setState(User.STATE_INVAITED);
+                        try {
+                            authService.update(user);
+                        } catch (Exception e1) {
+                            LOG.error("系统错误,用户信息更新失败，发生异常", e);
+                        }
+                    }
                 }
             });
             thread.start();
@@ -144,7 +155,6 @@ public class AuthController extends BaseController<User> {
             LOG.info(thread.getName() + "正在给 " + user.getEmail() + "邮箱发激活邮件.");
             return Constants.STATE_SUCCESS;
         } catch (Exception e) {
-            LOG.error("系统错误,邮件发送失败，发生异常", e);
             //将用户信息置为不可用
             user.setState(User.STATE_INVAITED);
             try {
@@ -152,7 +162,7 @@ public class AuthController extends BaseController<User> {
             } catch (Exception e1) {
                 LOG.error("系统错误,用户信息更新失败，发生异常", e);
             }
-            return "系统错误,邮件发送失败";
+            return "系统错误";
         }
     }
 
