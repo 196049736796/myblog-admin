@@ -17,8 +17,8 @@ public interface BaseService<T> {
     Page<T> listOnWhere(T t, Integer page, Integer rows, Sort sort, Example ex);
 
     Long getCount(Example ex);
-    void add(T t);
+    void add(T t) throws Exception;
     void delete(Serializable id);
-    void update(T t);
+    void update(T t) throws Exception;
     T getById(Serializable id);
 }

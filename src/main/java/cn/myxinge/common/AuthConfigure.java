@@ -1,4 +1,5 @@
 package cn.myxinge.common;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
 public class AuthConfigure {
     private String username;
     private String password;
+    private String mailU;
+    private String mailP;
 
     public String getPassword() {
         return password;
@@ -29,5 +32,21 @@ public class AuthConfigure {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getMailU() {
+        return mailU;
+    }
+
+    public void setMailU(String mailU) {
+        this.mailU = mailU;
+    }
+
+    public String getMailP() {
+        return mailP;
+    }
+
+    public void setMailP(String mailP) {
+        this.mailP = mailP;
     }
 }

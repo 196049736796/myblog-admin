@@ -31,8 +31,12 @@ public class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
-    public void add(T t) {
-        jpaRepository.save(t);
+    public void add(T t) throws Exception{
+        try {
+            jpaRepository.save(t);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @Override
@@ -41,7 +45,7 @@ public class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
-    public void update(T t) {
+    public void update(T t) throws Exception {
         add(t);
     }
 

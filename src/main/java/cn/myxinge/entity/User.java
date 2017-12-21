@@ -25,8 +25,7 @@ public class User {
     private String avatar_url;
     private Date created_at;
     private Date updated_at;
-
-
+    private String confirm_id;
     private String state;
 
 
@@ -107,6 +106,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getConfirm_id() {
+        return confirm_id;
+    }
+
+    public void setConfirm_id(String confirm_id) {
+        this.confirm_id = confirm_id;
     }
 
     @Override

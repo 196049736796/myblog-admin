@@ -39,7 +39,7 @@ public class BlogServiceImpl extends BaseServiceImpl<Blog> implements BlogServic
     }
 
     @Override
-    public void update(Blog blog) {
+    public void update(Blog blog) throws Exception {
         blog.setUpdatetime(new Date());
         super.update(blog);
     }

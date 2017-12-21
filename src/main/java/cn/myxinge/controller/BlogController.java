@@ -128,7 +128,7 @@ public class BlogController extends BaseController<Blog> {
      * 上线下线
      */
     @RequestMapping(value = "/changState/{id}", method = {RequestMethod.PUT})
-    public JSONObject changState(@PathVariable Integer id) {
+    public JSONObject changState(@PathVariable Integer id) throws Exception {
         if (null != id) {
             Blog blogById = blogService.getById(id);
             Integer state = blogById.getState();

@@ -32,7 +32,12 @@ public class BoardMsgController extends BaseController<BoardMsg>{
         }
         //存储
         msg.setCreatetime(new Date());
-        boardMsgService.add(msg);
+        try {
+            boardMsgService.add(msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseUtil.returnJson(false,"system error");
+        }
         return ResponseUtil.returnJson(true,"success");
     }
 

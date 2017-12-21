@@ -10,4 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface AuthDao extends JpaRepository<User, Integer> {
     @Query(value = "SELECT * from user where email = ? and pwd = ? limit 1", nativeQuery = true)
     User log(String email, String pwd);
+
+    @Query(value = "SELECT * from user where email = ?", nativeQuery = true)
+    User getByEmail(String email);
 }

@@ -8,6 +8,8 @@ import cn.myxinge.service.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 /**
  * Created by XingChen on 2017/12/20.
  */
@@ -20,8 +22,18 @@ public class AuthServiceImpl extends BaseServiceImpl<User> implements AuthServic
     @Override
     public User log(User user) {
         User log = authDao.log(user.getEmail(), user.getPwd());
-        log.setPwd("");
         return log;
+    }
+
+    @Override
+    public User getByEmail(User user) {
+        return authDao.getByEmail(user.getEmail());
+    }
+
+    @Override
+    public void update(User user) throws Exception {
+        user.setUpdated_at(new Date());
+        super.update(user);
     }
 
     @Autowired
