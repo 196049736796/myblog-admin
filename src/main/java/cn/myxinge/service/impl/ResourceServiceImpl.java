@@ -163,6 +163,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
         return "success";
     }
 
+
     @Autowired
     public void setBlogDao(ResourceDao resourceDao) {
         this.resourceDao = resourceDao;

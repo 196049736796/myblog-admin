@@ -110,7 +110,7 @@ public class AuthController extends BaseController<User> {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(new InternetAddress(mailU, "Xingchen's Blog", "UTF-8"));
             helper.setTo(user.getEmail());
-            helper.setSubject("激活：星尘博客网站注册激活");
+            helper.setSubject("帐号激活-Xingchen's Blog");
 
             StringBuffer sb = new StringBuffer();
             //读取文件
