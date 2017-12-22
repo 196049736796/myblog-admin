@@ -1,7 +1,8 @@
 package cn.myxinge.controller;
 
 import cn.myxinge.entity.Resource;
-import cn.myxinge.service.MenuService;
+import cn.myxinge.entity.User;
+import cn.myxinge.service.AuthService;
 import cn.myxinge.service.ResourceService;
 import cn.myxinge.utils.BASE64DecUtil;
 import cn.myxinge.utils.FileUtil;
@@ -11,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,10 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +32,10 @@ import java.util.Map;
 @RequestMapping("/admin/resouce")
 public class ResourceController extends BaseController<Resource> {
     private Logger LOG = LoggerFactory.getLogger(ResourceController.class);
+
+    @Autowired
+    private AuthService authService;
+
     @Autowired
     private ResourceService resourceService;
     @Value("${baseUrl}")
@@ -95,11 +97,22 @@ public class ResourceController extends BaseController<Resource> {
      */
     @RequestMapping("/uploadUserAvatar")
     @ResponseBody
-    public String uploadUserAvatar(Integer userId,String image,String avatar) {
-        if (StringUtils.isEmpty(image)) {
+    public String uploadUserAvatar(Integer userId, String image) throws Exception {
+        if (StringUtils.isEmpty(image) || null == userId) {
             return null;
         }
 
+        //更新数据
+        User user = authService.getById(userId);
+        //删除掉以前的
+        if (!StringUtils.isEmpty(user.getAvatar_url())) {
+            Resource resource = new Resource();
+            resource.setSysyUrl(user.getAvatar_url());
+            resourceService.deleteSysFile(resource);
+            LOG.info("头像上传中，正在删除原来的图片： " + user.getAvatar_url());
+        }
+
+        //上传开始
         image = image.replace("data:image/png;base64,", "");
 
         String rootPath = this.getClass().getResource("/").getPath();
@@ -112,6 +125,10 @@ public class ResourceController extends BaseController<Resource> {
             boolean b = BASE64DecUtil.generateImage(image, rootPath + "static/temp/" + fileName);
             if (b) {
                 String upload = resourceService.upload(rootPath + "static/temp/" + fileName, "png");
+
+                user.setAvatar_url(upload);
+                authService.update(user);
+
                 return upload;
             }
         } catch (Exception e) {

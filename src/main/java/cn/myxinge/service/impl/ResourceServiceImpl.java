@@ -33,7 +33,7 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
      * @return 上传结果
      */
     @Override
-    public String upload(InputStream is,Resource resource) {
+    public String upload(InputStream is, Resource resource) {
         FileOutputStream out = null;
         String rootPath = this.getClass().getResource("/").getPath();
         String filePath = null;
@@ -158,8 +158,10 @@ public class ResourceServiceImpl extends BaseServiceImpl<Resource> implements Re
         List<Resource> list = resourceDao.findAll(Example.of(r, matcher));
 
         r = list.size() > 0 ? list.get(0) : null;
-        r.setState(Resource.STATE_UNUSE);
-        super.update(r);
+        if (null != r) {
+            r.setState(Resource.STATE_UNUSE);
+            super.update(r);
+        }
         return "success";
     }
 

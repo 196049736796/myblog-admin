@@ -27,7 +27,16 @@ public class User {
     private Date updated_at;
     private String confirm_id;
     private String state;
+    private String isxing;  //是否是第三方登录？是为空，不是为1
 
+
+    public String getIsxing() {
+        return isxing;
+    }
+
+    public void setIsxing(String isxing) {
+        this.isxing = isxing;
+    }
 
     public String getState() {
         return state;
