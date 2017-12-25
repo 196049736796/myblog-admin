@@ -126,10 +126,10 @@ public class ResourceController extends BaseController<Resource> {
             if (b) {
                 String upload = resourceService.upload(rootPath + "static/temp/" + fileName, "png");
 
-                user.setAvatar_url(upload);
+                user.setAvatar_url("http://www.myxinge.cn/" + upload);
                 authService.update(user);
 
-                return upload;
+                return "http://www.myxinge.cn/" + upload;
             }
         } catch (Exception e) {
             LOG.error("头像上传失败，发生异常", e);
