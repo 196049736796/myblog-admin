@@ -61,6 +61,7 @@ public class AuthController extends BaseController<User> {
         user.setAvatar_url("/images/img.jpg");
         user.setState(User.STATE_UNACTIVATED);
         user.setCreated_at(new Date());
+        user.setIsxing("1");
 
         String rtn = super.add(user);
         //todo 发送邮件

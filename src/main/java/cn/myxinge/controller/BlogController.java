@@ -78,10 +78,11 @@ public class BlogController extends BaseController<Blog> {
     public JSONObject showBlog(@PathVariable String url) {
         Blog blog = blogService.getBlogByUrl(url);
         //顺带把上一篇和下一篇带出去
-        Map<String, Blog> map = blogService.findPreAndNext(blog);
+        //todo 上一篇下一篇取消
+//        Map<String, Blog> map = blogService.findPreAndNext(blog);
         Map<String, Object> jsonMap = new HashMap<String, Object>();
         jsonMap.put("curBlog", blog);
-        jsonMap.put("preAndNext", map);
+//        jsonMap.put("preAndNext", map);
         return new JSONObject(jsonMap);
     }
 

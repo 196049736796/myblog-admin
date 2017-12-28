@@ -1,9 +1,6 @@
 package cn.myxinge.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -16,13 +13,13 @@ public class BoardMsg implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    //昵称
-    private String name;
-    //mail
-    private String email;
-    //留言
-    private String msg;
-    //时间
+
+    @OneToOne
+    @JoinColumn(name = "pid")
+    private User user;
+
+    private String text;
+
     private Date createtime;
 
     public Integer getId() {
@@ -33,28 +30,20 @@ public class BoardMsg implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public User getUser() {
+        return user;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public String getEmail() {
-        return email;
+    public String getText() {
+        return text;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setText(String text) {
+        this.text = text;
     }
 
     public Date getCreatetime() {
@@ -65,3 +54,16 @@ public class BoardMsg implements Serializable {
         this.createtime = createtime;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

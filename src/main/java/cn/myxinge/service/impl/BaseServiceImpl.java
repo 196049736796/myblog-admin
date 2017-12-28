@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * Created by XingChen on 2017/11/19.
@@ -31,7 +32,7 @@ public class BaseServiceImpl<T> implements BaseService<T> {
     }
 
     @Override
-    public void add(T t) throws Exception{
+    public void add(T t) throws Exception {
         try {
             jpaRepository.save(t);
         } catch (Exception e) {
@@ -49,13 +50,17 @@ public class BaseServiceImpl<T> implements BaseService<T> {
         add(t);
     }
 
-    /**无条件查询（有排序）*/
+    /**
+     * 无条件查询（有排序）
+     */
     @Override
     public Page<T> list(T t, Integer page, Integer rows, Sort sort) {
         return listOnWhere(t, page, rows, sort, null);
     }
 
-    /**条件查询*/
+    /**
+     * 条件查询
+     */
     @Override
     public Page<T> listOnWhere(T t, Integer page, Integer rows, Sort sort, Example ex) {
         int firstP = (page - 1);
@@ -75,7 +80,7 @@ public class BaseServiceImpl<T> implements BaseService<T> {
 
     @Override
     public Long getCount(Example ex) {
-        if(null == ex){
+        if (null == ex) {
             return jpaRepository.count();
         }
         return jpaRepository.count(ex);
@@ -84,6 +89,24 @@ public class BaseServiceImpl<T> implements BaseService<T> {
     @Override
     public T getById(Serializable id) {
         return (T) jpaRepository.findOne(id);
+    }
+
+    @Override
+    public List all(Example ex, Sort sort) {
+
+        if (null == ex) {
+            if (null == sort) {
+                return jpaRepository.findAll();
+            } else {
+                return jpaRepository.findAll(sort);
+            }
+        } else {
+            if (null == sort) {
+                return jpaRepository.findAll(ex);
+            } else {
+                return jpaRepository.findAll(ex, sort);
+            }
+        }
     }
 
     /**
