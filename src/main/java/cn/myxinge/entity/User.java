@@ -1,5 +1,6 @@
 package cn.myxinge.entity;
 
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -45,6 +46,7 @@ public class User {
     public void setState(String state) {
         this.state = state;
     }
+
     public Integer getId() {
         return id;
     }

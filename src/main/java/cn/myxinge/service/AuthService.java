@@ -9,4 +9,6 @@ public interface AuthService extends BaseService<User>{
     User log(User user);
 
     User getByEmail(User user);
+
+    User getByLoginId(String login);
 }

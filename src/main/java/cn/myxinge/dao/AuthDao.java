@@ -13,4 +13,7 @@ public interface AuthDao extends JpaRepository<User, Integer> {
 
     @Query(value = "SELECT * from user where email = ?", nativeQuery = true)
     User getByEmail(String email);
+
+    @Query(value = "SELECT * from user where login = ?", nativeQuery = true)
+    User getByLoginId(String login);
 }

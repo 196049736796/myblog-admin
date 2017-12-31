@@ -31,6 +31,11 @@ public class AuthServiceImpl extends BaseServiceImpl<User> implements AuthServic
     }
 
     @Override
+    public User getByLoginId(String login) {
+        return authDao.getByLoginId(login);
+    }
+
+    @Override
     public void update(User user) throws Exception {
         user.setUpdated_at(new Date());
         super.update(user);

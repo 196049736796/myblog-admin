@@ -3,7 +3,9 @@ package cn.myxinge.controller;
 import cn.myxinge.entity.Constants;
 import cn.myxinge.entity.User;
 import cn.myxinge.service.AuthService;
+import cn.myxinge.utils.ResponseUtil;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,6 +44,9 @@ public class AuthController extends BaseController<User> {
     @Value("${confirmUrl}")
     private String confirmUrl;
 
+    @Value("${resetUrl}")
+    private String resetUrl;
+
     @Autowired
     private AuthService authService;
 
@@ -57,6 +59,7 @@ public class AuthController extends BaseController<User> {
         }
 
         //默认头像
+        user.setLogin(UUID.randomUUID().toString());
         user.setConfirm_id(UUID.randomUUID().toString());
         user.setAvatar_url("/images/img.jpg");
         user.setState(User.STATE_UNACTIVATED);
@@ -69,6 +72,38 @@ public class AuthController extends BaseController<User> {
             return sendMail(user);
         }
         return Constants.STATE_FAILRE;
+    }
+
+    @RequestMapping("/regThreepart")
+    @ResponseBody
+    public String addThreepart(User user) throws Exception {
+
+        //先根据LoginID判断是不是已经存储过了？
+        User byLoginId = authService.getByLoginId(user.getLogin());
+
+        if (byLoginId == null) {
+            authService.add(user);
+        } else {
+            user.setId(byLoginId.getId());
+            authService.update(user);
+        }
+
+        return user.getId() + "";
+    }
+
+    @RequestMapping("/userInfo")
+    @ResponseBody
+    public User userInfo(String login) throws Exception {
+
+        User user = authService.getByLoginId(login);
+        user.setPwd("");
+        return user;
+    }
+
+    @RequestMapping("/updateUser")
+    public String updateUser(User user) throws Exception {
+        authService.update(user);
+        return ResponseUtil.returnMsg(true, "更新成功");
     }
 
     @RequestMapping("/log")
@@ -115,7 +150,7 @@ public class AuthController extends BaseController<User> {
 
             StringBuffer sb = new StringBuffer();
             //读取文件
-            String path = this.getClass().getResource("/").getPath().concat("/static/ftl/mail");
+            String path = this.getClass().getResource("/").getPath().concat("/static/ftl/active");
             FileInputStream is = new FileInputStream(path);
             byte[] tempbytes = new byte[1024];
             int byteread = 0;
@@ -164,6 +199,92 @@ public class AuthController extends BaseController<User> {
                 LOG.error("系统错误,用户信息更新失败，发生异常", e);
             }
             return "系统错误";
+        }
+    }
+
+    @RequestMapping("/resetPwd")
+    @ResponseBody
+    public JSONObject resetPwd(String re_mail) {
+        //查询在不在？
+        User user = new User();
+        user.setEmail(re_mail);
+        User byEmail = authService.getByEmail(user);
+        if (null == byEmail) {
+            return ResponseUtil.returnJson(false, "失败，该账号未注册。");
+        }
+        //发邮件-线程
+        sendRestMail(byEmail);
+        //结果
+        return ResponseUtil.returnJson(true, "系统已经发送密码重置邮件到<span style='color:red'>" + re_mail + "</span>,请注意查收.");
+    }
+
+    @RequestMapping("/resetP")
+    @ResponseBody
+    public JSONObject resetP(User user) {
+        //查询在不在？
+        User byLoginId = authService.getByLoginId(user.getLogin());
+        if (null == byLoginId) {
+            return ResponseUtil.returnJson(false, "失败，该账号未注册。");
+        }
+        //数据更新
+        //加密
+        Md5Hash md5Hash = new Md5Hash(user.getPwd(), byLoginId.getEmail(), 2);
+        byLoginId.setPwd(md5Hash.toHex());
+        super.update(byLoginId);
+        //结果
+        return ResponseUtil.returnJson(true, "成功");
+    }
+
+    private void sendRestMail(User user) {
+        MimeMessage message = null;
+        try {
+            message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom(new InternetAddress(mailU, "Xingchen's Blog", "UTF-8"));
+            helper.setTo(user.getEmail());
+            helper.setSubject("密码重置:Xingchen's Blog");
+
+            StringBuffer sb = new StringBuffer();
+            //读取文件
+            String path = this.getClass().getResource("/").getPath().concat("/static/ftl/resetPwd");
+            FileInputStream is = new FileInputStream(path);
+            byte[] tempbytes = new byte[1024];
+            int byteread = 0;
+            while ((byteread = is.read(tempbytes)) != -1) {
+                sb.append(new String(tempbytes, 0, byteread));
+            }
+
+            String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            String url = resetUrl.concat("?resetid=" + user.getLogin());
+            //替换
+            String mail = sb.toString().replace("{name}", user.getName())
+                    .replace("{url}", url)
+                    .replace("{time}", time);
+
+            helper.setText(mail, true);
+
+            //建立线程
+            MimeMessage finalMessage = message;
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        javaMailSender.send(finalMessage);
+                    } catch (Exception e) {
+                        LOG.error("系统错误,邮件发送失败，发生异常", e);
+                        try {
+                            authService.update(user);
+                        } catch (Exception e1) {
+                            LOG.error("系统错误,用户信息更新失败，发生异常", e);
+                        }
+                    }
+                }
+            });
+            thread.start();
+
+            LOG.info(thread.getName() + "正在给 " + user.getEmail() + "邮箱发密码重置邮件.");
+        } catch (Exception e) {
+            LOG.error("系统错误,密码重置邮件发送失败，发生异常", e);
         }
     }
 
