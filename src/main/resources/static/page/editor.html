@@ -12,16 +12,17 @@
 <body>
 <div id="layout">
     <div class="btns">
-        <button id="get-md-btn">Markdown文本</button>
-        <button id="get-html-btn">HTML文本</button>
-        <button id="toc-menu-btn">ToC Dropdown menu</button>
-        <button id="toc-default-btn">ToC default</button>
+        <button id="get-md-btn">保存文章</button>
+        <span style="margin-left: 20px">上次保存时间：<span id="savetime" style="color: red">
+            未保存
+        </span></span>
     </div>
     <div id="test-editormd"></div>
 </div>
 <script src="js/Request.js"></script>
 <script src="js/jquery.min.js"></script>
 <script src="js/editormd.js"></script>
+<script src="js/date.js"></script>
 <script type="text/javascript">
     var testEditor;
     var id = Request().id;
@@ -67,9 +68,42 @@
             });
         });
 
+        //30s自动保存
+        window.setInterval(autoSave, 30000);
+
+        //窗口关闭自动保存
+        window.onbeforeunload = autoSave;
+
+        //定时保存
+        function autoSave() {
+            if (undefined == id || null == id) {
+                alert("注意，正在自动保存，没有绑定博客ID上传后在博客页无法找到.");
+                return;
+            }
+
+            $.ajax({
+                url: '/admin/blog/saveHtml',
+                data: {"md": testEditor.getMarkdown(), "id": id},
+                type: "post",
+                success: function (rtn) {
+                    if (rtn.success) {
+                        //显示时间
+                        $("#savetime").text(new Date().Format("yyyy-MM-dd hh:mm:ss"));
+                    } else {
+                        alert("注意，自动保存失败，请检查");
+                    }
+                },
+                error: function () {
+                    alert("注意，自动保存失败，请检查");
+                }
+            });
+        }
+
+
         $("#get-md-btn").bind('click', function () {
             if (undefined == id || null == id) {
                 alert("注意，没有绑定博客ID上传后在博客页无法找到.");
+                return;
             }
 
             var r = confirm("是否上传？");

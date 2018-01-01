@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sun.rmi.runtime.Log;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -155,6 +156,9 @@ public class BlogController extends BaseController<Blog> {
      */
     @RequestMapping("/saveWithoutHtml")
     public JSONObject saveWithoutHtml(Blog blog) {
+
+        LOG.info("保存博客开始：" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
         if (null != blog.getId()) {
             //此时标识数据更新，而不是添加
             Blog syBlog = blogService.getById(blog.getId());
