@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -125,7 +126,17 @@ public class ResourceController extends BaseController<Resource> {
             boolean b = BASE64DecUtil.generateImage(image, rootPath + "static/temp/" + fileName);
             if (b) {
                 String upload = resourceService.upload(rootPath + "static/temp/" + fileName, "png");
-
+                if (upload.endsWith(".png")) {
+                    Resource resource = new Resource();
+                    resource.setUrl("/user");
+                    resource.setFilename(fileName);
+                    resource.setSysyUrl(upload);
+                    resource.setState(Resource.STATE_USE);
+                    resource.setSuffix("png");
+                    resource.setCreatetime(new Date());
+                    resource.setDescription("用户头像文件，用户ID：" + userId);
+                    resourceService.add(resource);
+                }
                 user.setAvatar_url("http://www.myxinge.cn/" + upload);
                 authService.update(user);
 
