@@ -137,10 +137,10 @@ public class ResourceController extends BaseController<Resource> {
                     resource.setDescription("用户头像文件，用户ID：" + userId);
                     resourceService.add(resource);
                 }
-                user.setAvatar_url("http://www.myxinge.cn/" + upload);
+                user.setAvatar_url("https://www.myxinge.cn/" + upload);
                 authService.update(user);
 
-                return "http://www.myxinge.cn/" + upload;
+                return "https://www.myxinge.cn/" + upload;
             }
         } catch (Exception e) {
             LOG.error("头像上传失败，发生异常", e);
